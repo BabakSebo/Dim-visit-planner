@@ -107,21 +107,17 @@
   padding: 4px;
   background-color: var(--white);
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  min-height: 60px;
   box-sizing: border-box;
+  min-height: 60px;
 }
 
 .token-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 4px;
-  justify-content: flex-start;
+  justify-items: center;
   align-items: center;
 }
-
 
     .token {
       position: relative;
