@@ -208,6 +208,20 @@
         height: 40px;
       }
     }
+      .reset-button {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+  }
+
+  .reset-button:hover {
+    background-color: #ff1a1a;
+  }
   </style>
 </head>
 <body>
@@ -259,7 +273,7 @@ const firebaseConfig = {
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  const dates = [
+ const dates = [
     "Apr 18 (F)", "Apr 19 (Sa)", "Apr 20 (Su)", "Apr 21 (M)", "Apr 22 (Tu)", "Apr 23 (W)", "Apr 24 (Th)", "Apr 25 (F)",
     "Apr 26 (Sa)", "Apr 27 (Su)", "Apr 28 (M)", "Apr 29 (Tu)", "Apr 30 (W)", "May 01 (Th)", "May 02 (F)", "May 03 (Sa)",
     "May 04 (Su)", "May 05 (M)", "May 06 (Tu)", "May 07 (W)", "May 08 (Th)", "May 09 (F)", "May 10 (Sa)", "May 11 (Su)"
