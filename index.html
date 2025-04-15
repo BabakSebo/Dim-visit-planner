@@ -32,7 +32,6 @@
       color: var(--primary);
     }
 
-    /* Token row */
     .tokens-container {
       display: flex;
       justify-content: center;
@@ -61,7 +60,6 @@
       font-size: 0.9em;
     }
 
-    /* Calendar grid */
     .calendar {
       display: grid;
       grid-template-columns: 120px repeat(24, 1fr);
@@ -71,7 +69,8 @@
 
     .calendar .cell {
       border: 1px solid var(--border);
-      min-height: 80px;
+      min-height: 90px;
+      padding: 4px;
       position: relative;
       background: #fff;
     }
@@ -95,13 +94,19 @@
       border: 1px solid var(--border);
     }
 
-    .cell img.token {
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 5px;
+      justify-items: center;
+      align-items: center;
+    }
+
+    .token-grid img {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      position: absolute;
-      top: 5px;
-      left: 5px;
+      object-fit: cover;
       cursor: pointer;
     }
 
@@ -119,19 +124,19 @@
   <!-- Tokens -->
   <div class="tokens-container">
     <div class="token-wrapper">
-      <img src="tokens/Riddler.jpg" draggable="true" id="Riddler" alt="Riddler" class="token" />
+      <img src="tokens/Riddler.png" draggable="true" id="Riddler" alt="Riddler" />
       <span>Riddler</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Gunju.jpg" draggable="true" id="Gunju" alt="Gunju" class="token" />
+      <img src="tokens/Gunju.png" draggable="true" id="Gunju" alt="Gunju" />
       <span>Gunju</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Yipak.jpg" draggable="true" id="Yipak" alt="Yipak" class="token" />
+      <img src="tokens/Yipak.png" draggable="true" id="Yipak" alt="Yipak" />
       <span>Yipak</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Ronald.jpg" draggable="true" id="Ronald" alt="Ronald" class="token" />
+      <img src="tokens/Ronald.jpg" draggable="true" id="Ronald" alt="Ronald" />
       <span>Ronald</span>
     </div>
   </div>
@@ -147,13 +152,12 @@
     ];
 
     const activities = ["Golf AM", "Golf PM", "Padel", "Fazenda"];
-
     const calendar = document.getElementById('calendar');
 
-    // Top left corner
-    calendar.appendChild(document.createElement("div")); // Empty top-left corner
+    // Header blank
+    calendar.appendChild(document.createElement("div"));
 
-    // Add date headers
+    // Date headers
     dates.forEach(date => {
       const cell = document.createElement("div");
       cell.className = "header-cell";
@@ -161,7 +165,7 @@
       calendar.appendChild(cell);
     });
 
-    // Add rows (activity label + cells)
+    // Activity rows
     activities.forEach(activity => {
       const label = document.createElement("div");
       label.className = "row-label";
@@ -171,25 +175,30 @@
       dates.forEach(() => {
         const cell = document.createElement("div");
         cell.className = "cell";
+
+        const tokenContainer = document.createElement("div");
+        tokenContainer.className = "token-grid";
+        cell.appendChild(tokenContainer);
+
         cell.ondragover = (e) => e.preventDefault();
+
         cell.ondrop = (e) => {
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
-          const existing = cell.querySelector(`#${id}`);
+          const existing = tokenContainer.querySelector(`#${id}`);
           if (!existing) {
             const token = document.getElementById(id).cloneNode(true);
-            token.style.position = 'static';
             token.draggable = false;
-            token.classList.add("token");
-            cell.appendChild(token);
+            tokenContainer.appendChild(token);
           }
         };
+
         calendar.appendChild(cell);
       });
     });
 
-    // Drag logic
-    document.querySelectorAll(".token").forEach(token => {
+    // Drag setup
+    document.querySelectorAll(".tokens-container img").forEach(token => {
       token.addEventListener("dragstart", (e) => {
         e.dataTransfer.setData("text/plain", token.id);
       });
