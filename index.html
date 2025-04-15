@@ -22,7 +22,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      overflow-x: hidden;
     }
 
     h1 {
@@ -75,7 +74,7 @@
 
     .calendar {
       display: grid;
-      grid-template-columns: 100px repeat(24, minmax(60px, 1fr));
+      grid-template-columns: 80px repeat(24, minmax(60px, 1fr));
       min-width: 1000px;
     }
 
@@ -98,38 +97,34 @@
       color: var(--white);
       border: 1px solid #ccc;
       padding: 0.3rem;
-      white-space: normal;
-      word-wrap: break-word;
     }
 
-.cell {
-  border: 1px solid #ccc;
-  padding: 4px;
-  background-color: var(--white);
-  position: relative;
-  box-sizing: border-box;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  min-height: 60px;
-  height: auto; /* Let it grow naturally */
-}
+    .cell {
+      border: 1px solid #ccc;
+      padding: 4px;
+      background-color: var(--white);
+      position: relative;
+      box-sizing: border-box;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      min-height: 60px;
+      height: auto;
+    }
 
-
-.token-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 4px;
-  justify-items: center;
-  align-items: center;
-  width: 100%;
-}
-
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px;
+      justify-items: center;
+      align-items: center;
+      width: 100%;
+    }
 
     .token {
       position: relative;
-      width: 30px;
-      height: 30px;
+      width: 28px;
+      height: 28px;
     }
 
     .token img {
@@ -137,6 +132,7 @@
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
+      object-position: top;
     }
 
     .remove {
@@ -153,18 +149,6 @@
       line-height: 14px;
       text-align: center;
       cursor: pointer;
-    }
-
-    .drag-preview {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      position: absolute;
-      z-index: 1000;
-      pointer-events: none;
-      opacity: 0.9;
-      transform: translate(-50%, -50%);
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
 
     @media (max-width: 600px) {
@@ -184,23 +168,23 @@
   </style>
 </head>
 <body>
-  <h1>🗓️ Calendar 🗓️</h1>
+  <h1>🗓️ Spring Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
-      <img src="tokens/Riddler.png" id="Riddler" data-id="Riddler" draggable="true" />
+      <img src="tokens/Riddler.png" draggable="true" id="Riddler" data-id="Riddler" />
       <span>Riddler</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Gunju.png" id="Gunju" data-id="Gunju" draggable="true" />
+      <img src="tokens/Gunju.png" draggable="true" id="Gunju" data-id="Gunju" />
       <span>Gunju</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Yipak.png" id="Yipak" data-id="Yipak" draggable="true" />
+      <img src="tokens/Yipak.png" draggable="true" id="Yipak" data-id="Yipak" />
       <span>Yipak</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Ronald.png" id="Ronald" data-id="Ronald" draggable="true" />
+      <img src="tokens/Ronald.png" draggable="true" id="Ronald" data-id="Ronald" />
       <span>Ronald</span>
     </div>
   </div>
@@ -233,17 +217,15 @@
     });
 
     // Create Calendar Grid
-    activities.forEach((activity, rowIndex) => {
+    activities.forEach(activity => {
       const label = document.createElement("div");
       label.className = "row-label";
       label.textContent = activity;
       calendar.appendChild(label);
 
-      dates.forEach((date, colIndex) => {
+      dates.forEach((date, i) => {
         const cell = document.createElement("div");
         cell.className = "cell";
-        cell.dataset.date = date;
-        cell.dataset.activity = activity;
 
         const grid = document.createElement("div");
         grid.className = "token-grid";
@@ -253,80 +235,67 @@
         cell.ondrop = (e) => {
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
-          if (!grid || grid.querySelector(`#token-${id}`)) return;
 
-          if ([...grid.children].some(child => child.dataset.id === id)) return;
+          // Prevent duplicate tokens
+          if (grid.querySelector(`#token-${id}`)) return;
 
-          addTokenToGrid(id, grid);
+          const wrapper = document.createElement("div");
+          wrapper.className = "token";
+          wrapper.id = `token-${id}`;
+
+          const original = document.getElementById(id);
+          const img = original.cloneNode(true);
+          img.removeAttribute("draggable");
+
+          const remove = document.createElement("button");
+          remove.className = "remove";
+          remove.textContent = "✖";
+          remove.onclick = () => wrapper.remove();
+
+          wrapper.appendChild(img);
+          wrapper.appendChild(remove);
+          grid.appendChild(wrapper);
         };
 
         calendar.appendChild(cell);
       });
     });
 
-    function addTokenToGrid(id, grid) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "token";
-      wrapper.dataset.id = id;
-      wrapper.id = `token-${id}`;
-
-      const original = document.getElementById(id);
-      const img = original.cloneNode(true);
-      img.removeAttribute("draggable");
-
-      const remove = document.createElement("button");
-      remove.className = "remove";
-      remove.textContent = "✖";
-      remove.onclick = () => wrapper.remove();
-
-      wrapper.appendChild(img);
-      wrapper.appendChild(remove);
-      grid.appendChild(wrapper);
-    }
-
-    // Desktop drag support
+    // Allow dragging (mobile + desktop)
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
-    });
 
-    // Mobile touch support
-    document.querySelectorAll(".tokens-container img").forEach(img => {
-      img.addEventListener("touchstart", (e) => {
+      img.addEventListener("touchstart", function(e) {
         const touch = e.touches[0];
-        const imgId = img.id;
+        const dragImage = this.cloneNode(true);
+        dragImage.style.position = "absolute";
+        dragImage.style.left = `${touch.pageX - 30}px`;
+        dragImage.style.top = `${touch.pageY - 30}px`;
+        dragImage.style.width = "60px";
+        dragImage.style.height = "60px";
+        dragImage.style.zIndex = "1000";
+        dragImage.style.borderRadius = "50%";
+        dragImage.style.objectFit = "cover";
+        dragImage.style.objectPosition = "top";
+        dragImage.id = "floating-drag";
+        document.body.appendChild(dragImage);
 
-        e.preventDefault();
-
-        const tempImg = img.cloneNode(true);
-        tempImg.className = 'drag-preview';
-        document.body.appendChild(tempImg);
-
-        const moveHandler = (moveEvent) => {
-          const touch = moveEvent.touches[0];
-          tempImg.style.left = `${touch.clientX}px`;
-          tempImg.style.top = `${touch.clientY}px`;
+        const move = (e) => {
+          const moveTouch = e.touches[0];
+          dragImage.style.left = `${moveTouch.pageX - 30}px`;
+          dragImage.style.top = `${moveTouch.pageY - 30}px`;
         };
 
-        const endHandler = (endEvent) => {
-          const touch = endEvent.changedTouches[0];
-          const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-          if (dropTarget && dropTarget.classList.contains("cell")) {
-            const grid = dropTarget.querySelector(".token-grid");
-            const existing = [...grid.children].some(child => child.dataset.id === imgId);
-            if (!existing) {
-              addTokenToGrid(imgId, grid);
-            }
-          }
-
-          tempImg.remove();
-          window.removeEventListener("touchmove", moveHandler);
-          window.removeEventListener("touchend", endHandler);
+        const end = () => {
+          dragImage.remove();
+          document.removeEventListener("touchmove", move);
+          document.removeEventListener("touchend", end);
         };
 
-        window.addEventListener("touchmove", moveHandler);
-        window.addEventListener("touchend", endHandler);
+        document.addEventListener("touchmove", move);
+        document.addEventListener("touchend", end);
       });
     });
   </script>
