@@ -75,7 +75,7 @@
 
     .calendar {
       display: grid;
-      grid-template-columns: 100px repeat(24, minmax(60px, 1fr));
+      grid-template-columns: 100px repeat(24, minmax(80px, 1fr)); /* Increase column width */
       min-width: 1000px;
     }
 
@@ -104,7 +104,8 @@
 
     .cell {
       border: 1px solid #ccc;
-      min-height: 60px;
+      min-height: 120px;
+      min-width: 120px; /* Increased width to accommodate images */
       padding: 3px;
       background-color: var(--white);
       position: relative;
@@ -176,7 +177,7 @@
   </style>
 </head>
 <body>
-  <h1>🗓️ Calendar 🗓️</h1>
+  <h1>🗓️ Spring Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -280,45 +281,6 @@
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
-      });
-    });
-
-    // Mobile touch support
-    document.querySelectorAll(".tokens-container img").forEach(img => {
-      img.addEventListener("touchstart", (e) => {
-        const touch = e.touches[0];
-        const imgId = img.id;
-
-        e.preventDefault();
-
-        const tempImg = img.cloneNode(true);
-        tempImg.className = 'drag-preview';
-        document.body.appendChild(tempImg);
-
-        const moveHandler = (moveEvent) => {
-          const touch = moveEvent.touches[0];
-          tempImg.style.left = `${touch.clientX}px`;
-          tempImg.style.top = `${touch.clientY}px`;
-        };
-
-        const endHandler = (endEvent) => {
-          const touch = endEvent.changedTouches[0];
-          const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-          if (dropTarget && dropTarget.classList.contains("cell")) {
-            const grid = dropTarget.querySelector(".token-grid");
-            const existing = [...grid.children].some(child => child.dataset.id === imgId);
-            if (!existing) {
-              addTokenToGrid(imgId, grid);
-            }
-          }
-
-          tempImg.remove();
-          window.removeEventListener("touchmove", moveHandler);
-          window.removeEventListener("touchend", endHandler);
-        };
-
-        window.addEventListener("touchmove", moveHandler);
-        window.addEventListener("touchend", endHandler);
       });
     });
   </script>
