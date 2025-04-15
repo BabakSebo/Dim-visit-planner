@@ -83,49 +83,49 @@
     <!-- ACTIVITY ROWS -->
   </div>
 
-  <script>
-    const dates = ["Apr 18", "Apr 19", "Apr 20", "Apr 21", "Apr 22", "Apr 23", "Apr 24", "Apr 25", "Apr 26", "Apr 27", "Apr 28", "Apr 29", "Apr 30", "May 01", "May 02", "May 03", "May 04", "May 05", "May 06", "May 07", "May 08", "May 09", "May 10", "May 11"];
-    const activities = ["Golf AM", "Golf PM", "Padel", "Fazenda"];
-
-    const calendar = document.getElementById('calendar');
-
-    // Add date headers
-    dates.forEach(date => {
+<script>
+  const dates = ["Apr 18", "Apr 19", "Apr 20", "Apr 21", "Apr 22", "Apr 23", "Apr 24", "Apr 25", "Apr 26", "Apr 27", "Apr 28", "Apr 29", "Apr 30", "May 01", "May 02", "May 03", "May 04", "May 05", "May 06", "May 07", "May 08", "May 09", "May 10", "May 11"];
+  const activities = ["Golf AM", "Golf PM", "Padel", "Fazenda"];
+  
+  const calendar = document.getElementById('calendar');
+  
+  // Add date headers
+  dates.forEach(date => {
+    const cell = document.createElement('div');
+    cell.className = 'header';
+    cell.innerText = date;
+    calendar.appendChild(cell);
+  });
+  
+  // Add rows for each activity
+  activities.forEach(activity => {
+    // Activity label
+    const labelCell = document.createElement('div');
+    labelCell.className = 'header';
+    labelCell.innerText = activity;
+    calendar.appendChild(labelCell);
+  
+    // Add cells for each date
+    dates.forEach(() => {
       const cell = document.createElement('div');
-      cell.className = 'header';
-      cell.innerText = date;
+      cell.classList.add('calendar-cell');
+      cell.ondragover = e => e.preventDefault();
+      cell.ondrop = e => {
+        e.preventDefault();
+        const id = e.dataTransfer.getData("text/plain");
+        const token = document.getElementById(id).cloneNode(true);
+        token.style.position = 'static';
+        token.draggable = false;
+        e.target.appendChild(token);
+      };
       calendar.appendChild(cell);
     });
-
-    // Add rows for each activity
-    activities.forEach(activity => {
-      // Activity label
-      const labelCell = document.createElement('div');
-      labelCell.className = 'header';
-      labelCell.innerText = activity;
-      calendar.appendChild(labelCell);
-
-      dates.forEach(() => {
-        const cell = document.createElement('div');
-        cell.ondragover = e => e.preventDefault();
-        cell.ondrop = e => {
-          e.preventDefault();
-          const id = e.dataTransfer.getData("text/plain");
-          const token = document.getElementById(id).cloneNode(true);
-          token.style.position = 'static';
-          token.draggable = false;
-          e.target.appendChild(token);
-        };
-        calendar.appendChild(cell);
-      });
+  });
+  
+  // Enable token drag
+  document.querySelectorAll('.token').forEach(token => {
+    token.addEventListener('dragstart', e => {
+      e.dataTransfer.setData("text/plain", token.id);
     });
-
-    // Enable token drag
-    document.querySelectorAll('.token').forEach(token => {
-      token.addEventListener('dragstart', e => {
-        e.dataTransfer.setData("text/plain", token.id);
-      });
-    });
-  </script>
-</body>
-</html>
+  });
+</script>
