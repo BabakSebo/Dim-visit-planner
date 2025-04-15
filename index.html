@@ -259,20 +259,35 @@ const firebaseConfig = {
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
+,
+    databaseURL: "https://dim-calendar-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "dim-calendar",
+    storageBucket: "dim-calendar.appspot.com",
+    messagingSenderId: "608840256884",
+    appId: "1:608840256884:web:c2cae56d5e85981eb27021",
+    measurementId: "G-YM6BGBWJH4"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
   const dates = [
     "Apr 18 (F)", "Apr 19 (Sa)", "Apr 20 (Su)", "Apr 21 (M)", "Apr 22 (Tu)", "Apr 23 (W)", "Apr 24 (Th)", "Apr 25 (F)",
     "Apr 26 (Sa)", "Apr 27 (Su)", "Apr 28 (M)", "Apr 29 (Tu)", "Apr 30 (W)", "May 01 (Th)", "May 02 (F)", "May 03 (Sa)",
     "May 04 (Su)", "May 05 (M)", "May 06 (Tu)", "May 07 (W)", "May 08 (Th)", "May 09 (F)", "May 10 (Sa)", "May 11 (Su)"
   ];
+
   const activities = [
     "⛳<br>Golf AM", "🏌️<br>Golf PM", "🎾<br>Padel", "🥩🍷<br>Fazenda"
   ];
+
   const calendar = document.getElementById("calendar");
 
   const cleanKey = (text) =>
     text.replace(/<br>/g, "").replace(/[^\w]/g, "");
 
   calendar.appendChild(document.createElement("div")); // Empty top-left corner
+
   dates.forEach((date) => {
     const header = document.createElement("div");
     header.className = "header-cell";
@@ -284,19 +299,19 @@ const firebaseConfig = {
   });
 
   activities.forEach((activity) => {
-    const activityKey = cleanKey(activity); // ⬅️ Do this once per activity
-
     const label = document.createElement("div");
     label.className = "row-label";
     label.innerHTML = activity;
     calendar.appendChild(label);
+
+    const activityKey = cleanKey(activity);
 
     dates.forEach((date) => {
       const cell = document.createElement("div");
       cell.className = "cell";
       cell.dataset.date = date;
       cell.dataset.activity = activity;
-      cell.dataset.key = activityKey; // ✅ Add this here per cell
+      cell.dataset.key = activityKey;
 
       const grid = document.createElement("div");
       grid.className = "token-grid";
@@ -364,7 +379,6 @@ const firebaseConfig = {
     }
   }
 
-  // Enable drag and touch support
   document.querySelectorAll(".tokens-container img").forEach((img) => {
     img.addEventListener("dragstart", (e) => {
       e.dataTransfer.setData("text/plain", img.id);
