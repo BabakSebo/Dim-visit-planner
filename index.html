@@ -102,26 +102,31 @@
       word-wrap: break-word;
     }
 
-    .cell {
-      border: 1px solid #ccc;
-      min-height: 60px;
-      padding: 3px;
-      background-color: var(--white);
-      position: relative;
-    }
+.cell {
+  border: 1px solid #ccc;
+  padding: 4px;
+  background-color: var(--white);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 60px;
+  box-sizing: border-box;
+}
 
-    .token-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 4px;
-      justify-items: center;
-      align-items: center;
-    }
+.token-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-start;
+  align-items: center;
+}
+
 
     .token {
       position: relative;
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
     }
 
     .token img {
