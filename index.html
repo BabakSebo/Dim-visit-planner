@@ -249,10 +249,11 @@
       header.className = "header-cell";
       header.textContent = date;
 
-      // Apply weekend highlight
-      if (index === 1 || index === 2 || index === 9 || index === 10 || index === 15 || index === 16) {
+      // Apply weekend highlight by checking 'Sa' or 'Su' in the date string
+        if (date.includes('Sa') || date.includes('Su')) {
         header.classList.add('weekend');
-      }
+    }
+
 
       calendar.appendChild(header);
     });
