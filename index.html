@@ -11,7 +11,7 @@
       --white: #ffffff;
       --ivory: #fefefe;
       --font-main: 'Segoe UI', sans-serif;
-      --weekend-color: #d4e6d4;
+      --weekend-color: #f0f0f0; /* Lighter color for weekends */
     }
 
     body {
@@ -51,7 +51,6 @@
       border-radius: 50%;
       border: 2px solid var(--white);
       object-fit: cover;
-      object-position: top;
     }
 
     .token-wrapper span {
@@ -86,8 +85,7 @@
     }
 
     .header-cell.weekend {
-      background: var(--weekend-color);
-      color: #333;
+      background-color: var(--weekend-color); /* Apply weekend color */
     }
 
     .row-label {
@@ -98,11 +96,6 @@
       color: var(--white);
       border: 1px solid #ccc;
       padding: 0.3rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      white-space: pre-line;
     }
 
     .cell {
@@ -114,6 +107,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-direction: column; /* Center the content vertically */
+    }
+
+    .cell .emoji {
+      font-size: 1.5rem; /* Increase emoji size */
     }
 
     .token-grid {
@@ -149,7 +147,6 @@
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
-      object-position: top;
     }
 
     .remove {
@@ -229,43 +226,45 @@
 
   <script>
     const dates = [
-      "Apr 18", "Apr 19", "Apr 20", "Apr 21", "Apr 22", "Apr 23", "Apr 24", "Apr 25",
-      "Apr 26", "Apr 27", "Apr 28", "Apr 29", "Apr 30", "May 01", "May 02", "May 03",
-      "May 04", "May 05", "May 06", "May 07", "May 08", "May 09", "May 10", "May 11"
+      "Apr 18 (F)", "Apr 19 (Sa)", "Apr 20 (Su)", "Apr 21 (M)", "Apr 22 (Tu)", "Apr 23 (W)", "Apr 24 (Th)", 
+      "Apr 25 (F)", "Apr 26 (Sa)", "Apr 27 (Su)", "Apr 28 (M)", "Apr 29 (Tu)", "Apr 30 (W)", "May 01 (Th)", 
+      "May 02 (F)", "May 03 (Sa)", "May 04 (Su)", "May 05 (M)", "May 06 (Tu)", "May 07 (W)", "May 08 (Th)", 
+      "May 09 (F)", "May 10 (Sa)", "May 11 (Su)"
     ];
-
     const activities = [
-      "⛳\nGolf AM",
-      "🏌️\nGolf PM",
-      "🎾\nPadel",
-      "🥩🍷\nFazenda"
+      "⛳ Golf AM",
+      "🏌️ Golf PM",
+      "🎾 Padel",
+      "🥩🍷 Fazenda"
     ];
-
     const calendar = document.getElementById("calendar");
 
-    function getDaySuffix(dateStr) {
-      const dateObj = new Date(dateStr + ', 2025');
-      const days = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
-      return days[dateObj.getDay()];
-    }
-
-    calendar.appendChild(document.createElement("div")); // Top-left empty corner
-
-    dates.forEach(date => {
-      const day = getDaySuffix(date);
+    calendar.appendChild(document.createElement("div")); // Empty top-left corner
+    dates.forEach((date, index) => {
       const header = document.createElement("div");
       header.className = "header-cell";
-      if (day === 'Sa' || day === 'Su') {
-        header.classList.add("weekend");
+      header.textContent = date;
+      if (index % 7 === 5 || index % 7 === 6) { // Saturday or Sunday
+        header.classList.add('weekend');
       }
-      header.textContent = `${date} (${day})`;
       calendar.appendChild(header);
     });
 
     activities.forEach(activity => {
       const label = document.createElement("div");
       label.className = "row-label";
-      label.innerHTML = activity.replace('\n', '<br>');
+      
+      // Split emoji and text into two lines
+      const emoji = document.createElement("div");
+      emoji.className = "emoji";
+      emoji.textContent = activity[0]; // Only the emoji goes here
+      
+      const text = document.createElement("div");
+      text.className = "text";
+      text.textContent = activity.substring(2); // The rest is text
+
+      label.appendChild(emoji);
+      label.appendChild(text);
       calendar.appendChild(label);
 
       dates.forEach(date => {
@@ -284,15 +283,14 @@
         }
 
         cell.appendChild(grid);
-
         cell.ondragover = (e) => e.preventDefault();
         cell.ondrop = (e) => {
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
-          if ([...grid.children].some(child => child.dataset?.id === id)) return;
-          addTokenToGrid(id, grid);
+          if (!grid.querySelector(`#token-${id}`)) {
+            addTokenToGrid(id, grid);
+          }
         };
-
         calendar.appendChild(cell);
       });
     });
@@ -306,12 +304,15 @@
       const original = document.getElementById(id);
       const img = original.cloneNode(true);
       img.removeAttribute("draggable");
+      img.style.objectPosition = "center top"; // Ensure full image, especially head
 
       const remove = document.createElement("button");
       remove.className = "remove";
       remove.textContent = "✖";
       remove.onclick = () => {
         wrapper.remove();
+
+        // Restore placeholder when token is removed
         const placeholder = document.createElement("div");
         placeholder.className = "circle-placeholder";
         grid.appendChild(placeholder);
@@ -320,6 +321,7 @@
       wrapper.appendChild(img);
       wrapper.appendChild(remove);
 
+      // Replace one of the placeholders
       const placeholder = grid.querySelector(".circle-placeholder");
       if (placeholder) {
         grid.replaceChild(wrapper, placeholder);
@@ -331,14 +333,11 @@
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
-    });
 
-    // ✅ Mobile touch support (restored exactly)
-    document.querySelectorAll(".tokens-container img").forEach(img => {
-      img.addEventListener("touchstart", (e) => {
+      // Touch support (mobile)
+      img.addEventListener("touchstart", e => {
         const touch = e.touches[0];
         const imgId = img.id;
-
         e.preventDefault();
 
         const tempImg = img.cloneNode(true);
@@ -353,10 +352,10 @@
 
         const endHandler = (endEvent) => {
           const touch = endEvent.changedTouches[0];
-          const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-          if (dropTarget && dropTarget.classList.contains("cell")) {
-            const grid = dropTarget.querySelector(".token-grid");
-            const exists = [...grid.children].some(child => child.dataset?.id === imgId);
+          const target = document.elementFromPoint(touch.clientX, touch.clientY);
+          if (target && target.closest(".cell")) {
+            const grid = target.closest(".cell").querySelector(".token-grid");
+            const exists = [...grid.children].some(el => el.dataset?.id === imgId);
             if (!exists) {
               addTokenToGrid(imgId, grid);
             }
