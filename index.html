@@ -75,7 +75,7 @@
 
     .calendar {
       display: grid;
-      grid-template-columns: 100px repeat(24, minmax(120px, 1fr)); /* Increased min-width to 120px */
+      grid-template-columns: 100px repeat(24, minmax(120px, 1fr));
       min-width: 1000px;
     }
 
@@ -104,8 +104,7 @@
 
     .cell {
       border: 1px solid #ccc;
-      min-height: 60px; /* Keep the same height */
-      min-width: 120px; /* Increased width to 120px for better fit */
+      min-height: 60px;
       padding: 3px;
       background-color: var(--white);
       position: relative;
@@ -113,7 +112,7 @@
 
     .token-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr); /* 2x2 grid layout */
+      grid-template-columns: repeat(2, 1fr);
       gap: 4px;
       justify-items: center;
       align-items: center;
@@ -166,7 +165,7 @@
       }
 
       .calendar {
-        grid-template-columns: 70px repeat(24, minmax(50px, 1fr));
+        grid-template-columns: 70px repeat(24, minmax(120px, 1fr));
       }
 
       .header-cell,
@@ -177,7 +176,7 @@
   </style>
 </head>
 <body>
-  <h1>🗓️ Calendar 🗓️</h1>
+  <h1>🗓️ Spring Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -226,13 +225,13 @@
     });
 
     // Create Calendar Grid
-    activities.forEach((activity, rowIndex) => {
+    activities.forEach((activity) => {
       const label = document.createElement("div");
       label.className = "row-label";
       label.textContent = activity;
       calendar.appendChild(label);
 
-      dates.forEach((date, colIndex) => {
+      dates.forEach((date) => {
         const cell = document.createElement("div");
         cell.className = "cell";
         cell.dataset.date = date;
@@ -281,6 +280,45 @@
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
+      });
+    });
+
+    // Mobile touch support
+    document.querySelectorAll(".tokens-container img").forEach(img => {
+      img.addEventListener("touchstart", (e) => {
+        const touch = e.touches[0];
+        const imgId = img.id;
+
+        e.preventDefault();
+
+        const tempImg = img.cloneNode(true);
+        tempImg.className = 'drag-preview';
+        document.body.appendChild(tempImg);
+
+        const moveHandler = (moveEvent) => {
+          const touch = moveEvent.touches[0];
+          tempImg.style.left = `${touch.clientX}px`;
+          tempImg.style.top = `${touch.clientY}px`;
+        };
+
+        const endHandler = (endEvent) => {
+          const touch = endEvent.changedTouches[0];
+          const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+          if (dropTarget && dropTarget.classList.contains("cell")) {
+            const grid = dropTarget.querySelector(".token-grid");
+            const existing = [...grid.children].some(child => child.dataset.id === imgId);
+            if (!existing) {
+              addTokenToGrid(imgId, grid);
+            }
+          }
+
+          tempImg.remove();
+          window.removeEventListener("touchmove", moveHandler);
+          window.removeEventListener("touchend", endHandler);
+        };
+
+        window.addEventListener("touchmove", moveHandler);
+        window.addEventListener("touchend", endHandler);
       });
     });
   </script>
