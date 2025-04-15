@@ -101,15 +101,10 @@
 
     .cell {
       border: 1px solid #ccc;
-      padding: 4px;
+      min-height: 60px;
+      padding: 3px;
       background-color: var(--white);
-      position: relative;
       box-sizing: border-box;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      min-height: 110px;
-      height: auto;
     }
 
     .token-grid {
@@ -122,8 +117,8 @@
 
     .token {
       position: relative;
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
     }
 
     .token img {
@@ -165,13 +160,13 @@
       }
 
       .cell {
-        min-height: 110px;
+        min-height: 60px;
       }
     }
   </style>
 </head>
 <body>
-  <h1>🗓️ Calendar 🗓️</h1>
+  <h1>🗓️ Spring Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -239,7 +234,7 @@
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
 
-          // Check if user already exists in this cell
+          // Prevent duplicate tokens
           if (grid.querySelector(`[data-id="${id}"]`)) return;
 
           const wrapper = document.createElement("div");
@@ -265,20 +260,11 @@
       });
     });
 
-    // Enable drag events
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
     });
-
-    // 🛑 Prevent pull-to-refresh on touch drag
-    let isDragging = false;
-    document.addEventListener("touchstart", () => { isDragging = true; }, { passive: false });
-    document.addEventListener("touchmove", (e) => {
-      if (isDragging) e.preventDefault();
-    }, { passive: false });
-    document.addEventListener("touchend", () => { isDragging = false; });
   </script>
 </body>
 </html>
