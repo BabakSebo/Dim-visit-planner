@@ -22,6 +22,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      overflow-x: hidden; /* Prevent horizontal scroll */
     }
 
     h1 {
@@ -76,6 +77,8 @@
       display: grid;
       grid-template-columns: 100px repeat(24, minmax(60px, 1fr)); /* Wider first column */
       min-width: 1000px;
+      overflow-x: scroll;
+      overflow-y: hidden;
     }
 
     .header-cell {
@@ -106,6 +109,7 @@
       min-height: 60px;
       padding: 3px;
       background-color: var(--white);
+      position: relative;
     }
 
     .token-grid {
@@ -225,12 +229,11 @@
         grid.className = "token-grid";
         cell.appendChild(grid);
 
-        // For touch events
-        cell.ontouchstart = (e) => e.preventDefault();
-        cell.ontouchmove = (e) => e.preventDefault();
-        cell.ontouchend = (e) => {
-          const touch = e.changedTouches[0];
-          const id = touch.target.id;
+        // Desktop Drag and Drop
+        cell.ondragover = (e) => e.preventDefault();
+        cell.ondrop = (e) => {
+          e.preventDefault();
+          const id = e.dataTransfer.getData("text/plain");
           if (grid.querySelector(`#token-${id}`)) return;
 
           const wrapper = document.createElement("div");
@@ -255,40 +258,67 @@
       });
     });
 
-    // Allow dragging for desktops (dragstart)
+    // Allow dragging for desktop (dragstart)
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
     });
 
-    // Handle Drag and Drop on Desktop
-    document.querySelectorAll(".cell").forEach(cell => {
-      cell.ondragover = (e) => e.preventDefault();
-      cell.ondrop = (e) => {
-        e.preventDefault();
-        const id = e.dataTransfer.getData("text/plain");
-        const grid = cell.querySelector(".token-grid");
+    // For Mobile Drag-and-Drop
+    document.querySelectorAll(".tokens-container img").forEach(img => {
+      img.addEventListener("touchstart", (e) => {
+        const touch = e.touches[0];
+        const imgId = img.id;
 
-        if (grid.querySelector(`#token-${id}`)) return;
+        e.preventDefault(); // Prevent default to avoid page scrolling
 
-        const wrapper = document.createElement("div");
-        wrapper.className = "token";
-        wrapper.id = `token-${id}`;
+        const tempImg = img.cloneNode(true);
+        tempImg.style.position = 'absolute';
+        tempImg.style.left = `${touch.clientX}px`;
+        tempImg.style.top = `${touch.clientY}px`;
 
-        const original = document.getElementById(id);
-        const img = original.cloneNode(true);
-        img.removeAttribute("draggable");
+        document.body.appendChild(tempImg);
 
-        const remove = document.createElement("button");
-        remove.className = "remove";
-        remove.textContent = "✖";
-        remove.onclick = () => wrapper.remove();
+        const moveHandler = (moveEvent) => {
+          tempImg.style.left = `${moveEvent.touches[0].clientX}px`;
+          tempImg.style.top = `${moveEvent.touches[0].clientY}px`;
+        };
 
-        wrapper.appendChild(img);
-        wrapper.appendChild(remove);
-        grid.appendChild(wrapper);
-      };
+        const endHandler = (endEvent) => {
+          const dropCell = document.elementFromPoint(endEvent.changedTouches[0].clientX, endEvent.changedTouches[0].clientY);
+          if (dropCell && dropCell.classList.contains("cell")) {
+            const grid = dropCell.querySelector(".token-grid");
+            if (grid) {
+              const wrapper = document.createElement("div");
+              wrapper.className = "token";
+              wrapper.id = `token-${imgId}`;
+
+              const original = document.getElementById(imgId);
+              const imgClone = original.cloneNode(true);
+              imgClone.removeAttribute("draggable");
+
+              const remove = document.createElement("button");
+              remove.className = "remove";
+              remove.textContent = "✖";
+              remove.onclick = () => wrapper.remove();
+
+              wrapper.appendChild(imgClone);
+              wrapper.appendChild(remove);
+              grid.appendChild(wrapper);
+            }
+          }
+
+          document.body.removeChild(tempImg);
+          moveEvent.preventDefault();
+          endEvent.preventDefault();
+          window.removeEventListener('touchmove', moveHandler);
+          window.removeEventListener('touchend', endHandler);
+        };
+
+        window.addEventListener('touchmove', moveHandler);
+        window.addEventListener('touchend', endHandler);
+      });
     });
   </script>
 </body>
