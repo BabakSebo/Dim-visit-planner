@@ -1,157 +1,196 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Golf, Padel, and Fazenda Planner</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Planner: Golf, Padel, Fazenda</title>
   <style>
+    :root {
+      --primary: #3a86ff;
+      --secondary: #f1f1f1;
+      --accent: #ffbe0b;
+      --bg: #ffffff;
+      --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      --border: #ccc;
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: var(--font);
       margin: 0;
       padding: 0;
-      background-color: #f4f4f4;
+      background: var(--secondary);
+      color: #333;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 20px;
     }
 
-    .header {
-      font-size: 24px;
-      font-weight: bold;
+    h1 {
+      font-size: 2em;
       margin-bottom: 20px;
+      color: var(--primary);
     }
 
-    .token-label {
+    /* Token row */
+    .tokens-container {
       display: flex;
-      align-items: center;
-      margin: 10px 0;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
     }
 
-    .token-label img {
-      width: 50px; /* Set size */
-      height: 50px; /* Set size */
+    .token-wrapper {
+      text-align: center;
+      width: 70px;
+    }
+
+    .token-wrapper img {
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       object-fit: cover;
-      margin-right: 10px;
+      border: 2px solid var(--primary);
+      cursor: grab;
     }
 
+    .token-wrapper span {
+      margin-top: 8px;
+      display: block;
+      font-size: 0.9em;
+    }
+
+    /* Calendar grid */
     .calendar {
       display: grid;
-      grid-template-columns: 100px repeat(24, 1fr); /* Adjust as needed */
-      grid-gap: 1px;
-      background-color: #ddd;
-      border-collapse: collapse;
-      margin-top: 20px;
-      width: 100%;
+      grid-template-columns: 120px repeat(24, 1fr);
+      border: 1px solid var(--border);
+      background: var(--bg);
     }
 
-    .calendar div {
-      padding: 10px;
+    .calendar .cell {
+      border: 1px solid var(--border);
       min-height: 80px;
-      background-color: white;
-      border: 1px solid #ccc;
       position: relative;
+      background: #fff;
     }
 
-    .calendar .header {
-      background-color: #ccc;
+    .calendar .header-cell {
+      background: var(--primary);
+      color: white;
       font-weight: bold;
       text-align: center;
+      padding: 8px;
+      font-size: 0.9em;
+      border: 1px solid var(--border);
     }
 
-    .calendar .token-cell {
-      border: 1px solid #ddd;
-      background-color: #f9f9f9;
+    .calendar .row-label {
+      background: var(--accent);
+      font-weight: bold;
+      text-align: center;
+      padding: 10px;
+      font-size: 0.95em;
+      border: 1px solid var(--border);
     }
 
-    .token {
+    .cell img.token {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      cursor: grab;
       position: absolute;
       top: 5px;
       left: 5px;
+      cursor: pointer;
     }
 
-    .calendar-cell {
-      position: relative;
+    @media screen and (max-width: 800px) {
+      .calendar {
+        overflow-x: scroll;
+        display: block;
+      }
     }
   </style>
 </head>
 <body>
-  <h1 class="header">Golf, Padel, and Fazenda Planner</h1>
+  <h1>Activity Planner</h1>
 
-  <!-- Tokens Section -->
-  <div class="token-label">
-    <img src="tokens/Riddler.jpg" class="token" draggable="true" id="Riddler" alt="Riddler">
-    <div>Riddler</div>
-  </div>
-  <div class="token-label">
-    <img src="tokens/Gunju.jpg" class="token" draggable="true" id="Gunju" alt="Gunju">
-    <div>Gunju</div>
-  </div>
-  <div class="token-label">
-    <img src="tokens/Yipak.jpg" class="token" draggable="true" id="Yipak" alt="Yipak">
-    <div>Yipak</div>
-  </div>
-  <div class="token-label">
-    <img src="tokens/Ronald.jpg" class="token" draggable="true" id="Ronald" alt="Ronald">
-    <div>Ronald</div>
+  <!-- Tokens -->
+  <div class="tokens-container">
+    <div class="token-wrapper">
+      <img src="tokens/Riddler.jpg" draggable="true" id="Riddler" alt="Riddler" class="token" />
+      <span>Riddler</span>
+    </div>
+    <div class="token-wrapper">
+      <img src="tokens/Gunju.jpg" draggable="true" id="Gunju" alt="Gunju" class="token" />
+      <span>Gunju</span>
+    </div>
+    <div class="token-wrapper">
+      <img src="tokens/Yipak.jpg" draggable="true" id="Yipak" alt="Yipak" class="token" />
+      <span>Yipak</span>
+    </div>
+    <div class="token-wrapper">
+      <img src="tokens/Ronald.jpg" draggable="true" id="Ronald" alt="Ronald" class="token" />
+      <span>Ronald</span>
+    </div>
   </div>
 
-  <!-- Calendar Section -->
+  <!-- Calendar -->
   <div id="calendar" class="calendar"></div>
 
-  <!-- JavaScript -->
   <script>
-    // Dates and Activities
     const dates = [
-      "Apr 18", "Apr 19", "Apr 20", "Apr 21", "Apr 22", "Apr 23", "Apr 24", "Apr 25", 
-      "Apr 26", "Apr 27", "Apr 28", "Apr 29", "Apr 30", "May 01", "May 02", "May 03", 
+      "Apr 18", "Apr 19", "Apr 20", "Apr 21", "Apr 22", "Apr 23", "Apr 24", "Apr 25",
+      "Apr 26", "Apr 27", "Apr 28", "Apr 29", "Apr 30", "May 01", "May 02", "May 03",
       "May 04", "May 05", "May 06", "May 07", "May 08", "May 09", "May 10", "May 11"
     ];
+
     const activities = ["Golf AM", "Golf PM", "Padel", "Fazenda"];
 
-    // Create calendar grid dynamically
     const calendar = document.getElementById('calendar');
+
+    // Top left corner
+    calendar.appendChild(document.createElement("div")); // Empty top-left corner
 
     // Add date headers
     dates.forEach(date => {
-      const cell = document.createElement('div');
-      cell.className = 'header';
+      const cell = document.createElement("div");
+      cell.className = "header-cell";
       cell.innerText = date;
       calendar.appendChild(cell);
     });
 
-    // Add rows for each activity
+    // Add rows (activity label + cells)
     activities.forEach(activity => {
-      const labelCell = document.createElement('div');
-      labelCell.className = 'header';
-      labelCell.innerText = activity;
-      calendar.appendChild(labelCell);
+      const label = document.createElement("div");
+      label.className = "row-label";
+      label.innerText = activity;
+      calendar.appendChild(label);
 
-      // Add cells for each date
       dates.forEach(() => {
-        const cell = document.createElement('div');
-        cell.classList.add('calendar-cell', 'token-cell');
-        cell.ondragover = e => e.preventDefault();  // Allow dropping
-        cell.ondrop = e => {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.ondragover = (e) => e.preventDefault();
+        cell.ondrop = (e) => {
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
-          const token = document.getElementById(id).cloneNode(true);
-          token.style.position = 'static';
-          token.draggable = false;
-          e.target.appendChild(token);
+          const existing = cell.querySelector(`#${id}`);
+          if (!existing) {
+            const token = document.getElementById(id).cloneNode(true);
+            token.style.position = 'static';
+            token.draggable = false;
+            token.classList.add("token");
+            cell.appendChild(token);
+          }
         };
         calendar.appendChild(cell);
       });
     });
 
-    // Enable token drag functionality
-    document.querySelectorAll('.token').forEach(token => {
-      token.addEventListener('dragstart', e => {
+    // Drag logic
+    document.querySelectorAll(".token").forEach(token => {
+      token.addEventListener("dragstart", (e) => {
         e.dataTransfer.setData("text/plain", token.id);
       });
     });
