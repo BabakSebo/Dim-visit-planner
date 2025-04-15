@@ -8,10 +8,10 @@
     :root {
       --green: #0B3D2E;
       --green-faded: rgba(11, 61, 46, 0.1);
+      --green-light: #A7D8D0; /* Light green for weekends */
       --white: #ffffff;
       --ivory: #fefefe;
-      --font-main: 'Segoe UI', sans-serif;
-      --weekend-color: #f0f0f0; /* Lighter color for weekends */
+      --font-main: "Helvetica Neue", Helvetica, Arial, sans-serif; /* Use Helvetica Neue */
     }
 
     body {
@@ -85,7 +85,7 @@
     }
 
     .header-cell.weekend {
-      background-color: var(--weekend-color); /* Apply weekend color */
+      background-color: var(--green-light);
     }
 
     .row-label {
@@ -107,11 +107,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column; /* Center the content vertically */
-    }
-
-    .cell .emoji {
-      font-size: 1.5rem; /* Increase emoji size */
     }
 
     .token-grid {
@@ -147,6 +142,7 @@
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
+      object-position: top; /* Prevent cropping of heads */
     }
 
     .remove {
@@ -199,7 +195,7 @@
   </style>
 </head>
 <body>
-  <h1>🗓️ Spring Calendar 🗓️</h1>
+  <h1>🗓️ Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -226,10 +222,9 @@
 
   <script>
     const dates = [
-      "Apr 18 (F)", "Apr 19 (Sa)", "Apr 20 (Su)", "Apr 21 (M)", "Apr 22 (Tu)", "Apr 23 (W)", "Apr 24 (Th)", 
-      "Apr 25 (F)", "Apr 26 (Sa)", "Apr 27 (Su)", "Apr 28 (M)", "Apr 29 (Tu)", "Apr 30 (W)", "May 01 (Th)", 
-      "May 02 (F)", "May 03 (Sa)", "May 04 (Su)", "May 05 (M)", "May 06 (Tu)", "May 07 (W)", "May 08 (Th)", 
-      "May 09 (F)", "May 10 (Sa)", "May 11 (Su)"
+      "Apr 18 (F)", "Apr 19 (Sa)", "Apr 20 (Su)", "Apr 21 (M)", "Apr 22 (Tu)", "Apr 23 (W)", "Apr 24 (Th)", "Apr 25 (F)",
+      "Apr 26 (Sa)", "Apr 27 (Su)", "Apr 28 (M)", "Apr 29 (Tu)", "Apr 30 (W)", "May 01 (Th)", "May 02 (F)", "May 03 (Sa)",
+      "May 04 (Su)", "May 05 (M)", "May 06 (Tu)", "May 07 (W)", "May 08 (Th)", "May 09 (F)", "May 10 (Sa)", "May 11 (Su)"
     ];
     const activities = [
       "⛳ Golf AM",
@@ -244,27 +239,19 @@
       const header = document.createElement("div");
       header.className = "header-cell";
       header.textContent = date;
-      if (index % 7 === 5 || index % 7 === 6) { // Saturday or Sunday
+
+      // Apply weekend highlight
+      if (index === 1 || index === 2 || index === 9 || index === 10 || index === 15 || index === 16) {
         header.classList.add('weekend');
       }
+
       calendar.appendChild(header);
     });
 
     activities.forEach(activity => {
       const label = document.createElement("div");
       label.className = "row-label";
-      
-      // Split emoji and text into two lines
-      const emoji = document.createElement("div");
-      emoji.className = "emoji";
-      emoji.textContent = activity[0]; // Only the emoji goes here
-      
-      const text = document.createElement("div");
-      text.className = "text";
-      text.textContent = activity.substring(2); // The rest is text
-
-      label.appendChild(emoji);
-      label.appendChild(text);
+      label.textContent = activity;
       calendar.appendChild(label);
 
       dates.forEach(date => {
@@ -304,7 +291,7 @@
       const original = document.getElementById(id);
       const img = original.cloneNode(true);
       img.removeAttribute("draggable");
-      img.style.objectPosition = "center top"; // Ensure full image, especially head
+      img.style.objectPosition = "top"; // Prevent cropping of heads
 
       const remove = document.createElement("button");
       remove.className = "remove";
