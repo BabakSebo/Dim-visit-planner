@@ -244,16 +244,17 @@
 
 
 <script>
-  // ✅ 1. Firebase Config
-  const firebaseConfig = {
-    apiKey: "XXXXxxxxxxx",
-    authDomain: "dim-calendar.firebaseapp.com",
-    databaseURL: "https://dim-calendar-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "dim-calendar",
-    storageBucket: "dim-calendar.appspot.com",
-    messagingSenderId: "608840256884",
-    appId: "1:608840256884:web:c2cae56d5e85981eb27021"
-  };
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC8ejDjguVQTetcN_cjbza4HtJcXlQEQQQ",
+  authDomain: "dim-calendar.firebaseapp.com",
+  databaseURL: "https://dim-calendar-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "dim-calendar",
+  storageBucket: "dim-calendar.firebasestorage.app",
+  messagingSenderId: "608840256884",
+  appId: "1:608840256884:web:c2cae56d5e85981eb27021",
+  measurementId: "G-YM6BGBWJH4"
+};
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
