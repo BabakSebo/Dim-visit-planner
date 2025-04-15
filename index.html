@@ -52,7 +52,7 @@
       height: 60px;
       border-radius: 50%;
       object-fit: cover;
-      object-position: top; /* Align the image to the top */
+      object-position: top;
       border: 2px solid var(--white);
     }
 
@@ -166,19 +166,19 @@
 
   <div class="tokens-container">
     <div class="token-wrapper">
-      <img src="tokens/Riddler.png" draggable="true" id="Riddler" data-id="Riddler" />
+      <img src="tokens/Riddler.png" id="Riddler" data-id="Riddler" />
       <span>Riddler</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Gunju.png" draggable="true" id="Gunju" data-id="Gunju" />
+      <img src="tokens/Gunju.png" id="Gunju" data-id="Gunju" />
       <span>Gunju</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Yipak.png" draggable="true" id="Yipak" data-id="Yipak" />
+      <img src="tokens/Yipak.png" id="Yipak" data-id="Yipak" />
       <span>Yipak</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Ronald.png" draggable="true" id="Ronald" data-id="Ronald" />
+      <img src="tokens/Ronald.png" id="Ronald" data-id="Ronald" />
       <span>Ronald</span>
     </div>
   </div>
@@ -260,6 +260,35 @@
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
+    });
+
+    // Handle Drag and Drop on Desktop
+    document.querySelectorAll(".cell").forEach(cell => {
+      cell.ondragover = (e) => e.preventDefault();
+      cell.ondrop = (e) => {
+        e.preventDefault();
+        const id = e.dataTransfer.getData("text/plain");
+        const grid = cell.querySelector(".token-grid");
+
+        if (grid.querySelector(`#token-${id}`)) return;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "token";
+        wrapper.id = `token-${id}`;
+
+        const original = document.getElementById(id);
+        const img = original.cloneNode(true);
+        img.removeAttribute("draggable");
+
+        const remove = document.createElement("button");
+        remove.className = "remove";
+        remove.textContent = "✖";
+        remove.onclick = () => wrapper.remove();
+
+        wrapper.appendChild(img);
+        wrapper.appendChild(remove);
+        grid.appendChild(wrapper);
+      };
     });
   </script>
 </body>
