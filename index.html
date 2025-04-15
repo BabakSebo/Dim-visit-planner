@@ -75,7 +75,7 @@
 
     .calendar {
       display: grid;
-      grid-template-columns: 100px repeat(24, minmax(80px, 1fr)); /* Increase column width */
+      grid-template-columns: 100px repeat(24, minmax(120px, 1fr)); /* Increased min-width to 120px */
       min-width: 1000px;
     }
 
@@ -104,8 +104,8 @@
 
     .cell {
       border: 1px solid #ccc;
-      min-height: 120px;
-      min-width: 120px; /* Increased width to accommodate images */
+      min-height: 60px; /* Keep the same height */
+      min-width: 120px; /* Increased width to 120px for better fit */
       padding: 3px;
       background-color: var(--white);
       position: relative;
@@ -113,7 +113,7 @@
 
     .token-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, 1fr); /* 2x2 grid layout */
       gap: 4px;
       justify-items: center;
       align-items: center;
@@ -177,7 +177,7 @@
   </style>
 </head>
 <body>
-  <h1>🗓️ Spring Calendar 🗓️</h1>
+  <h1>🗓️ Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
