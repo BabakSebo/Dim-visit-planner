@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golf Planner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: 100px repeat(24, 1fr);
+      border-collapse: collapse;
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+    .calendar div {
+      border: 1px solid #ccc;
+      padding: 5px;
+      min-height: 80px;
+      position: relative;
+      background-color: white;
+    }
+    .calendar .header {
+      background: #eee;
+      font-weight: bold;
+      text-align: center;
+    }
+    .token {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: grab;
+      position: absolute;
+      top: 5px;
+      left: 5px;
+    }
+    .token-container {
+      margin-top: 20px;
+    }
+    .token-label {
+      display: inline-block;
+      text-align: center;
+      margin-right: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Golf Trip Planner</h1>
+  <div class="token-container">
+    <div class="token-label">
+      <img src="tokens/riddler.png" class="token" draggable="true" id="Riddler" alt="Riddler">
+      <div>Riddler</div>
+    </div>
+    <div class="token-label">
+      <img src="tokens/gunju.png" class="token" draggable="true" id="Gunju" alt="Gunju">
+      <div>Gunju</div>
+    </div>
+    <div class="token-label">
+      <img src="tokens/yipak.png" class="token" draggable="true" id="Yipak" alt="Yipak">
+      <div>Yipak</div>
+    </div>
+    <div class="token-label">
+      <img src="tokens/ronald.png" class="token" draggable="true" id="Ronald" alt="Ronald">
+      <div>Ronald</div>
+    </div>
+  </div>
+
+  <div class="calendar" id="calendar">
+    <div class="header">Activity</div>
+    <!-- Generate date headers -->
+    <!-- DATE HEADERS -->
+    
+    <!-- Activity rows -->
+    <!-- Golf AM, Golf PM, Padel, Fazenda -->
+    
+    <!-- ACTIVITY ROWS -->
+  </div>
+
+  <script>
+    const dates = ["Apr 18", "Apr 19", "Apr 20", "Apr 21", "Apr 22", "Apr 23", "Apr 24", "Apr 25", "Apr 26", "Apr 27", "Apr 28", "Apr 29", "Apr 30", "May 01", "May 02", "May 03", "May 04", "May 05", "May 06", "May 07", "May 08", "May 09", "May 10", "May 11"];
+    const activities = ["Golf AM", "Golf PM", "Padel", "Fazenda"];
+
+    const calendar = document.getElementById('calendar');
+
+    // Add date headers
+    dates.forEach(date => {
+      const cell = document.createElement('div');
+      cell.className = 'header';
+      cell.innerText = date;
+      calendar.appendChild(cell);
+    });
+
+    // Add rows for each activity
+    activities.forEach(activity => {
+      // Activity label
+      const labelCell = document.createElement('div');
+      labelCell.className = 'header';
+      labelCell.innerText = activity;
+      calendar.appendChild(labelCell);
+
+      dates.forEach(() => {
+        const cell = document.createElement('div');
+        cell.ondragover = e => e.preventDefault();
+        cell.ondrop = e => {
+          e.preventDefault();
+          const id = e.dataTransfer.getData("text/plain");
+          const token = document.getElementById(id).cloneNode(true);
+          token.style.position = 'static';
+          token.draggable = false;
+          e.target.appendChild(token);
+        };
+        calendar.appendChild(cell);
+      });
+    });
+
+    // Enable token drag
+    document.querySelectorAll('.token').forEach(token => {
+      token.addEventListener('dragstart', e => {
+        e.dataTransfer.setData("text/plain", token.id);
+      });
+    });
+  </script>
+</body>
+</html>
