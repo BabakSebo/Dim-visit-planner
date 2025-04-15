@@ -63,16 +63,7 @@
     .calendar {
       display: grid;
       grid-template-columns: 120px repeat(24, 1fr);
-      border: 1px solid var(--border);
       background: var(--bg);
-    }
-
-    .calendar .cell {
-      border: 1px solid var(--border);
-      min-height: 90px;
-      padding: 4px;
-      position: relative;
-      background: #fff;
     }
 
     .calendar .header-cell {
@@ -92,6 +83,16 @@
       padding: 10px;
       font-size: 0.95em;
       border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .calendar .cell {
+      border: 1px solid var(--border);
+      min-height: 100px;
+      padding: 4px;
+      position: relative;
     }
 
     .token-grid {
@@ -102,11 +103,37 @@
       align-items: center;
     }
 
-    .token-grid img {
+    .token-grid .token {
+      position: relative;
       width: 40px;
       height: 40px;
+    }
+
+    .token-grid .token img {
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
       object-fit: cover;
+      cursor: pointer;
+    }
+
+    .token-grid .token img#Gunju {
+      object-position: top;
+    }
+
+    .token-grid .remove {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 10px;
+      width: 14px;
+      height: 14px;
+      line-height: 14px;
+      text-align: center;
       cursor: pointer;
     }
 
@@ -121,7 +148,6 @@
 <body>
   <h1>Activity Planner</h1>
 
-  <!-- Tokens -->
   <div class="tokens-container">
     <div class="token-wrapper">
       <img src="tokens/Riddler.png" draggable="true" id="Riddler" alt="Riddler" />
@@ -136,12 +162,11 @@
       <span>Yipak</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Ronald.jpg" draggable="true" id="Ronald" alt="Ronald" />
+      <img src="tokens/Ronald.png" draggable="true" id="Ronald" alt="Ronald" />
       <span>Ronald</span>
     </div>
   </div>
 
-  <!-- Calendar -->
   <div id="calendar" class="calendar"></div>
 
   <script>
@@ -152,57 +177,4 @@
     ];
 
     const activities = ["Golf AM", "Golf PM", "Padel", "Fazenda"];
-    const calendar = document.getElementById('calendar');
-
-    // Header blank
-    calendar.appendChild(document.createElement("div"));
-
-    // Date headers
-    dates.forEach(date => {
-      const cell = document.createElement("div");
-      cell.className = "header-cell";
-      cell.innerText = date;
-      calendar.appendChild(cell);
-    });
-
-    // Activity rows
-    activities.forEach(activity => {
-      const label = document.createElement("div");
-      label.className = "row-label";
-      label.innerText = activity;
-      calendar.appendChild(label);
-
-      dates.forEach(() => {
-        const cell = document.createElement("div");
-        cell.className = "cell";
-
-        const tokenContainer = document.createElement("div");
-        tokenContainer.className = "token-grid";
-        cell.appendChild(tokenContainer);
-
-        cell.ondragover = (e) => e.preventDefault();
-
-        cell.ondrop = (e) => {
-          e.preventDefault();
-          const id = e.dataTransfer.getData("text/plain");
-          const existing = tokenContainer.querySelector(`#${id}`);
-          if (!existing) {
-            const token = document.getElementById(id).cloneNode(true);
-            token.draggable = false;
-            tokenContainer.appendChild(token);
-          }
-        };
-
-        calendar.appendChild(cell);
-      });
-    });
-
-    // Drag setup
-    document.querySelectorAll(".tokens-container img").forEach(token => {
-      token.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", token.id);
-      });
-    });
-  </script>
-</body>
-</html>
+    const
