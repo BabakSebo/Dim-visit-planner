@@ -10,7 +10,8 @@
       --green-faded: rgba(11, 61, 46, 0.1);
       --white: #ffffff;
       --ivory: #fefefe;
-      --font-main: Georgia, 'Times New Roman', Times, serif;
+      --font-main: 'Segoe UI', sans-serif;
+      --weekend-color: #d4e6d4;
     }
 
     body {
@@ -50,7 +51,7 @@
       border-radius: 50%;
       border: 2px solid var(--white);
       object-fit: cover;
-      object-position: center top; 
+      object-position: center top;
     }
 
     .token-wrapper span {
@@ -84,6 +85,11 @@
       white-space: nowrap;
     }
 
+    .header-cell.weekend {
+      background: var(--weekend-color);
+      color: #333;
+    }
+
     .row-label {
       font-size: 0.75rem;
       font-weight: bold;
@@ -92,6 +98,10 @@
       color: var(--white);
       border: 1px solid #ccc;
       padding: 0.3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .cell {
@@ -138,6 +148,7 @@
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
+      object-position: center top;
     }
 
     .remove {
@@ -190,7 +201,7 @@
   </style>
 </head>
 <body>
-  <h1>🗓️ Spring Calendar 🗓️</h1>
+  <h1>🗓️ Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -206,6 +217,7 @@
       <span>Yipak</span>
     </div>
     <div class="token-wrapper">
+      <!-- Add the source for the image of Ronald -->
       <img src="tokens/Ronald.png" id="Ronald" data-id="Ronald" draggable="true" />
       <span>Ronald</span>
     </div>
@@ -221,26 +233,40 @@
       "Apr 26", "Apr 27", "Apr 28", "Apr 29", "Apr 30", "May 01", "May 02", "May 03",
       "May 04", "May 05", "May 06", "May 07", "May 08", "May 09", "May 10", "May 11"
     ];
+
     const activities = [
-      "⛳ Golf AM",
-      "🏌️ Golf PM",
-      "🎾 Padel",
-      "🥩🍷 Fazenda"
+      "⛳\nGolf AM",
+      "🏌️\nGolf PM",
+      "🎾\nPadel",
+      "🥩🍷\nFazenda"
     ];
+
     const calendar = document.getElementById("calendar");
 
-    calendar.appendChild(document.createElement("div")); // Empty top-left corner
+    function getDaySuffix(dateStr) {
+      const dateObj = new Date(dateStr + ', 2025');
+      const days = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
+      return days[dateObj.getDay()];
+    }
+
+    // Header row
+    calendar.appendChild(document.createElement("div")); // Top-left empty corner
     dates.forEach(date => {
+      const day = getDaySuffix(date);
       const header = document.createElement("div");
       header.className = "header-cell";
-      header.textContent = date;
+      if (day === 'Sa' || day === 'Su') {
+        header.classList.add("weekend");
+      }
+      header.textContent = `${date} (${day})`;
       calendar.appendChild(header);
     });
 
+    // Grid cells
     activities.forEach(activity => {
       const label = document.createElement("div");
       label.className = "row-label";
-      label.textContent = activity;
+      label.innerHTML = activity.replace('\n', '<br>');
       calendar.appendChild(label);
 
       dates.forEach(date => {
@@ -259,62 +285,61 @@
         }
 
         cell.appendChild(grid);
+
         cell.ondragover = (e) => e.preventDefault();
         cell.ondrop = (e) => {
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
-          if (!grid.querySelector(`#token-${id}`)) {
-            addTokenToGrid(id, grid);
-          }
+          if ([...grid.children].some(child => child.dataset?.id === id)) return;
+          addTokenToGrid(id, grid);
         };
+
         calendar.appendChild(cell);
       });
     });
 
-function addTokenToGrid(id, grid) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "token";
-  wrapper.dataset.id = id;
-  wrapper.id = `token-${id}`;
+    function addTokenToGrid(id, grid) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "token";
+      wrapper.dataset.id = id;
+      wrapper.id = `token-${id}`;
 
-  const original = document.getElementById(id);
-  const img = original.cloneNode(true);
-  img.removeAttribute("draggable");
-  img.style.objectPosition = "center top"; // Ensure full image, especially head
+      const original = document.getElementById(id);
+      const img = original.cloneNode(true);
+      img.removeAttribute("draggable");
 
-  const remove = document.createElement("button");
-  remove.className = "remove";
-  remove.textContent = "✖";
-  remove.onclick = () => {
-    wrapper.remove();
+      const remove = document.createElement("button");
+      remove.className = "remove";
+      remove.textContent = "✖";
+      remove.onclick = () => {
+        wrapper.remove();
+        const placeholder = document.createElement("div");
+        placeholder.className = "circle-placeholder";
+        grid.appendChild(placeholder);
+      };
 
-    // Restore placeholder when token is removed
-    const placeholder = document.createElement("div");
-    placeholder.className = "circle-placeholder";
-    grid.appendChild(placeholder);
-  };
+      wrapper.appendChild(img);
+      wrapper.appendChild(remove);
 
-  wrapper.appendChild(img);
-  wrapper.appendChild(remove);
-
-  // Replace one of the placeholders
-  const placeholder = grid.querySelector(".circle-placeholder");
-  if (placeholder) {
-    grid.replaceChild(wrapper, placeholder);
-  }
-}
-
+      const placeholder = grid.querySelector(".circle-placeholder");
+      if (placeholder) {
+        grid.replaceChild(wrapper, placeholder);
+      }
+    }
 
     // Desktop drag support
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
+    });
 
-      // Touch support (mobile)
-      img.addEventListener("touchstart", e => {
+    // Mobile touch support
+    document.querySelectorAll(".tokens-container img").forEach(img => {
+      img.addEventListener("touchstart", (e) => {
         const touch = e.touches[0];
         const imgId = img.id;
+
         e.preventDefault();
 
         const tempImg = img.cloneNode(true);
@@ -329,10 +354,10 @@ function addTokenToGrid(id, grid) {
 
         const endHandler = (endEvent) => {
           const touch = endEvent.changedTouches[0];
-          const target = document.elementFromPoint(touch.clientX, touch.clientY);
-          if (target && target.closest(".cell")) {
-            const grid = target.closest(".cell").querySelector(".token-grid");
-            const exists = [...grid.children].some(el => el.dataset?.id === imgId);
+          const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+          if (dropTarget && dropTarget.classList.contains("cell")) {
+            const grid = dropTarget.querySelector(".token-grid");
+            const exists = [...grid.children].some(child => child.dataset?.id === imgId);
             if (!exists) {
               addTokenToGrid(imgId, grid);
             }
@@ -350,3 +375,4 @@ function addTokenToGrid(id, grid) {
   </script>
 </body>
 </html>
+
