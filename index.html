@@ -108,7 +108,7 @@
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      min-height: 60px;
+      min-height: 110px;
       height: auto;
     }
 
@@ -118,13 +118,12 @@
       gap: 4px;
       justify-items: center;
       align-items: center;
-      width: 100%;
     }
 
     .token {
       position: relative;
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
     }
 
     .token img {
@@ -164,11 +163,15 @@
       .row-label {
         font-size: 0.6rem;
       }
+
+      .cell {
+        min-height: 110px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>🗓️ Spring Calendar 🗓️</h1>
+  <h1>🗓️ Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -236,16 +239,17 @@
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
 
-          // Prevent duplicate tokens
-          if (grid.querySelector(`#token-${id}`)) return;
+          // Check if user already exists in this cell
+          if (grid.querySelector(`[data-id="${id}"]`)) return;
 
           const wrapper = document.createElement("div");
           wrapper.className = "token";
-          wrapper.id = `token-${id}`;
 
           const original = document.getElementById(id);
           const img = original.cloneNode(true);
           img.removeAttribute("draggable");
+          img.setAttribute("data-id", id);
+          img.style.objectPosition = "top";
 
           const remove = document.createElement("button");
           remove.className = "remove";
@@ -261,43 +265,20 @@
       });
     });
 
-    // Allow dragging (mobile + desktop)
+    // Enable drag events
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
-
-      img.addEventListener("touchstart", function(e) {
-        const touch = e.touches[0];
-        const dragImage = this.cloneNode(true);
-        dragImage.style.position = "absolute";
-        dragImage.style.left = `${touch.pageX - 30}px`;
-        dragImage.style.top = `${touch.pageY - 30}px`;
-        dragImage.style.width = "60px";
-        dragImage.style.height = "60px";
-        dragImage.style.zIndex = "1000";
-        dragImage.style.borderRadius = "50%";
-        dragImage.style.objectFit = "cover";
-        dragImage.style.objectPosition = "top";
-        dragImage.id = "floating-drag";
-        document.body.appendChild(dragImage);
-
-        const move = (e) => {
-          const moveTouch = e.touches[0];
-          dragImage.style.left = `${moveTouch.pageX - 30}px`;
-          dragImage.style.top = `${moveTouch.pageY - 30}px`;
-        };
-
-        const end = () => {
-          dragImage.remove();
-          document.removeEventListener("touchmove", move);
-          document.removeEventListener("touchend", end);
-        };
-
-        document.addEventListener("touchmove", move);
-        document.addEventListener("touchend", end);
-      });
     });
+
+    // 🛑 Prevent pull-to-refresh on touch drag
+    let isDragging = false;
+    document.addEventListener("touchstart", () => { isDragging = true; }, { passive: false });
+    document.addEventListener("touchmove", (e) => {
+      if (isDragging) e.preventDefault();
+    }, { passive: false });
+    document.addEventListener("touchend", () => { isDragging = false; });
   </script>
 </body>
 </html>
