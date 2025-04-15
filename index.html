@@ -201,7 +201,7 @@
   </style>
 </head>
 <body>
-  <h1>🗓️ Calendar 🗓️</h1>
+  <h1>🗓️ Spring Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -217,7 +217,6 @@
       <span>Yipak</span>
     </div>
     <div class="token-wrapper">
-      <!-- Add the source for the image of Ronald -->
       <img src="tokens/Ronald.png" id="Ronald" data-id="Ronald" draggable="true" />
       <span>Ronald</span>
     </div>
@@ -250,7 +249,7 @@
     }
 
     // Header row
-    calendar.appendChild(document.createElement("div")); // Top-left empty corner
+    calendar.appendChild(document.createElement("div")); // Top-left corner
     dates.forEach(date => {
       const day = getDaySuffix(date);
       const header = document.createElement("div");
@@ -262,7 +261,7 @@
       calendar.appendChild(header);
     });
 
-    // Grid cells
+    // Grid
     activities.forEach(activity => {
       const label = document.createElement("div");
       label.className = "row-label";
@@ -307,6 +306,7 @@
       const original = document.getElementById(id);
       const img = original.cloneNode(true);
       img.removeAttribute("draggable");
+      img.style.objectPosition = "center top";
 
       const remove = document.createElement("button");
       remove.className = "remove";
@@ -327,14 +327,14 @@
       }
     }
 
-    // Desktop drag support
+    // Desktop drag
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
     });
 
-    // Mobile touch support
+    // ✅ Mobile touch drag
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("touchstart", (e) => {
         const touch = e.touches[0];
@@ -375,4 +375,3 @@
   </script>
 </body>
 </html>
-
