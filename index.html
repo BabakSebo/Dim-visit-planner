@@ -221,7 +221,14 @@
       "Apr 26 (Sa)", "Apr 27 (Su)", "Apr 28 (M)", "Apr 29 (Tu)", "Apr 30 (W)", "May 01 (Th)", "May 02 (F)", "May 03 (Sa)",
       "May 04 (Su)", "May 05 (M)", "May 06 (Tu)", "May 07 (W)", "May 08 (Th)", "May 09 (F)", "May 10 (Sa)", "May 11 (Su)"
     ];
-    const activities = ["⛳<br>Golf AM", "🏌️<br>Golf PM", "🎾<br>Padel", "🥩🍷<br>Fazenda"];
+
+    const activities = [
+      { id: "golf_am", label: "⛳<br>Golf AM" },
+      { id: "golf_pm", label: "🏌️<br>Golf PM" },
+      { id: "padel", label: "🎾<br>Padel" },
+      { id: "fazenda", label: "🥩🍷<br>Fazenda" }
+    ];
+
     const calendar = document.getElementById("calendar");
 
     calendar.appendChild(document.createElement("div")); // Empty top-left
@@ -233,17 +240,17 @@
       calendar.appendChild(header);
     });
 
-    activities.forEach(activity => {
+    activities.forEach(({ id: activityId, label: activityLabel }) => {
       const label = document.createElement("div");
       label.className = "row-label";
-      label.innerHTML = activity;
+      label.innerHTML = activityLabel;
       calendar.appendChild(label);
 
       dates.forEach(date => {
         const cell = document.createElement("div");
         cell.className = "cell";
         cell.dataset.date = date;
-        cell.dataset.activity = activity;
+        cell.dataset.activity = activityId;
 
         const grid = document.createElement("div");
         grid.className = "token-grid";
@@ -268,14 +275,14 @@
       });
     });
 
-    function getCurrentTokens(date, activity) {
-      const selector = `.cell[data-date="${date}"][data-activity="${activity}"] .token`;
+    function getCurrentTokens(date, activityId) {
+      const selector = `.cell[data-date="${date}"][data-activity="${activityId}"] .token`;
       const tokenElements = document.querySelectorAll(selector);
       return Array.from(tokenElements).map(el => el.dataset.id);
     }
 
-    function saveDataToFirebase(date, activity, tokens) {
-      const dbRef = ref(database, 'calendar/' + date + '/' + activity);
+    function saveDataToFirebase(date, activityId, tokens) {
+      const dbRef = ref(database, 'calendar/' + date + '/' + activityId);
       set(dbRef, { tokens });
     }
 
@@ -285,9 +292,9 @@
         if (snapshot.exists()) {
           const data = snapshot.val();
           for (const date in data) {
-            for (const activity in data[date]) {
-              const tokens = data[date][activity].tokens || [];
-              const selector = `.cell[data-date="${date}"][data-activity="${activity}"] .token-grid`;
+            for (const activityId in data[date]) {
+              const tokens = data[date][activityId].tokens || [];
+              const selector = `.cell[data-date="${date}"][data-activity="${activityId}"] .token-grid`;
               const grid = document.querySelector(selector);
               tokens.forEach(tokenId => {
                 if (grid && !grid.querySelector(`#token-${tokenId}`)) {
@@ -303,7 +310,7 @@
     function addTokenToGrid(id, grid) {
       const cell = grid.closest('.cell');
       const date = cell.dataset.date;
-      const activity = cell.dataset.activity;
+      const activityId = cell.dataset.activity;
 
       const wrapper = document.createElement("div");
       wrapper.className = "token";
@@ -322,7 +329,7 @@
         const placeholder = document.createElement("div");
         placeholder.className = "circle-placeholder";
         grid.appendChild(placeholder);
-        saveDataToFirebase(date, activity, getCurrentTokens(date, activity));
+        saveDataToFirebase(date, activityId, getCurrentTokens(date, activityId));
       };
 
       wrapper.appendChild(img);
@@ -333,7 +340,7 @@
         grid.replaceChild(wrapper, placeholder);
       }
 
-      saveDataToFirebase(date, activity, getCurrentTokens(date, activity));
+      saveDataToFirebase(date, activityId, getCurrentTokens(date, activityId));
     }
 
     // Make tokens draggable
