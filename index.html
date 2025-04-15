@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -204,7 +204,7 @@
   </style>
 </head>
 <body>
-  <h1>🗓️ Calendar 🗓️</h1>
+  <h1>🗓️ Spring Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -284,7 +284,7 @@
         cell.ondrop = (e) => {
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
-          if (!grid.querySelector(#token-${id})) {
+          if (!grid.querySelector(`#token-${id}`)) {
             addTokenToGrid(id, grid);
           }
         };
@@ -296,7 +296,7 @@
       const wrapper = document.createElement("div");
       wrapper.className = "token";
       wrapper.dataset.id = id;
-      wrapper.id = token-${id};
+      wrapper.id = `token-${id}`;
 
       const original = document.getElementById(id);
       const img = original.cloneNode(true);
@@ -343,8 +343,8 @@
 
         const moveHandler = (moveEvent) => {
           const touch = moveEvent.touches[0];
-          tempImg.style.left = ${touch.clientX}px;
-          tempImg.style.top = ${touch.clientY}px;
+          tempImg.style.left = `${touch.clientX}px`;
+          tempImg.style.top = `${touch.clientY}px`;
         };
 
         const endHandler = (endEvent) => {
