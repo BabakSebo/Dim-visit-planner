@@ -22,7 +22,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      overflow-x: hidden; /* Prevent horizontal scroll */
+      overflow-x: hidden;
     }
 
     h1 {
@@ -75,10 +75,8 @@
 
     .calendar {
       display: grid;
-      grid-template-columns: 100px repeat(24, minmax(60px, 1fr)); /* Wider first column */
+      grid-template-columns: 100px repeat(24, minmax(60px, 1fr));
       min-width: 1000px;
-      overflow-x: scroll;
-      overflow-y: hidden;
     }
 
     .header-cell {
@@ -149,6 +147,18 @@
       cursor: pointer;
     }
 
+    .drag-preview {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      position: absolute;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0.9;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
     @media (max-width: 600px) {
       h1 {
         font-size: 1.4rem;
@@ -170,19 +180,19 @@
 
   <div class="tokens-container">
     <div class="token-wrapper">
-      <img src="tokens/Riddler.png" id="Riddler" data-id="Riddler" />
+      <img src="tokens/Riddler.png" id="Riddler" data-id="Riddler" draggable="true" />
       <span>Riddler</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Gunju.png" id="Gunju" data-id="Gunju" />
+      <img src="tokens/Gunju.png" id="Gunju" data-id="Gunju" draggable="true" />
       <span>Gunju</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Yipak.png" id="Yipak" data-id="Yipak" />
+      <img src="tokens/Yipak.png" id="Yipak" data-id="Yipak" draggable="true" />
       <span>Yipak</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Ronald.png" id="Ronald" data-id="Ronald" />
+      <img src="tokens/Ronald.png" id="Ronald" data-id="Ronald" draggable="true" />
       <span>Ronald</span>
     </div>
   </div>
@@ -215,109 +225,100 @@
     });
 
     // Create Calendar Grid
-    activities.forEach(activity => {
+    activities.forEach((activity, rowIndex) => {
       const label = document.createElement("div");
       label.className = "row-label";
       label.textContent = activity;
       calendar.appendChild(label);
 
-      dates.forEach((date, i) => {
+      dates.forEach((date, colIndex) => {
         const cell = document.createElement("div");
         cell.className = "cell";
+        cell.dataset.date = date;
+        cell.dataset.activity = activity;
 
         const grid = document.createElement("div");
         grid.className = "token-grid";
         cell.appendChild(grid);
 
-        // Desktop Drag and Drop
         cell.ondragover = (e) => e.preventDefault();
         cell.ondrop = (e) => {
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
-          if (grid.querySelector(`#token-${id}`)) return;
+          if (!grid || grid.querySelector(`#token-${id}`)) return;
 
-          const wrapper = document.createElement("div");
-          wrapper.className = "token";
-          wrapper.id = `token-${id}-${activity}-${i}`;
+          if ([...grid.children].some(child => child.dataset.id === id)) return;
 
-          const original = document.getElementById(id);
-          const img = original.cloneNode(true);
-          img.removeAttribute("draggable");
-
-          const remove = document.createElement("button");
-          remove.className = "remove";
-          remove.textContent = "✖";
-          remove.onclick = () => wrapper.remove();
-
-          wrapper.appendChild(img);
-          wrapper.appendChild(remove);
-          grid.appendChild(wrapper);
+          addTokenToGrid(id, grid);
         };
 
         calendar.appendChild(cell);
       });
     });
 
-    // Allow dragging for desktop (dragstart)
+    function addTokenToGrid(id, grid) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "token";
+      wrapper.dataset.id = id;
+      wrapper.id = `token-${id}`;
+
+      const original = document.getElementById(id);
+      const img = original.cloneNode(true);
+      img.removeAttribute("draggable");
+
+      const remove = document.createElement("button");
+      remove.className = "remove";
+      remove.textContent = "✖";
+      remove.onclick = () => wrapper.remove();
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(remove);
+      grid.appendChild(wrapper);
+    }
+
+    // Desktop drag support
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
     });
 
-    // For Mobile Drag-and-Drop
+    // Mobile touch support
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("touchstart", (e) => {
         const touch = e.touches[0];
         const imgId = img.id;
 
-        e.preventDefault(); // Prevent default to avoid page scrolling
+        e.preventDefault();
 
         const tempImg = img.cloneNode(true);
-        tempImg.style.position = 'absolute';
-        tempImg.style.left = `${touch.clientX}px`;
-        tempImg.style.top = `${touch.clientY}px`;
-
+        tempImg.className = 'drag-preview';
         document.body.appendChild(tempImg);
 
         const moveHandler = (moveEvent) => {
-          tempImg.style.left = `${moveEvent.touches[0].clientX}px`;
-          tempImg.style.top = `${moveEvent.touches[0].clientY}px`;
+          const touch = moveEvent.touches[0];
+          tempImg.style.left = `${touch.clientX}px`;
+          tempImg.style.top = `${touch.clientY}px`;
         };
 
         const endHandler = (endEvent) => {
-          const dropCell = document.elementFromPoint(endEvent.changedTouches[0].clientX, endEvent.changedTouches[0].clientY);
-          if (dropCell && dropCell.classList.contains("cell")) {
-            const grid = dropCell.querySelector(".token-grid");
-            if (grid) {
-              const wrapper = document.createElement("div");
-              wrapper.className = "token";
-              wrapper.id = `token-${imgId}`;
-
-              const original = document.getElementById(imgId);
-              const imgClone = original.cloneNode(true);
-              imgClone.removeAttribute("draggable");
-
-              const remove = document.createElement("button");
-              remove.className = "remove";
-              remove.textContent = "✖";
-              remove.onclick = () => wrapper.remove();
-
-              wrapper.appendChild(imgClone);
-              wrapper.appendChild(remove);
-              grid.appendChild(wrapper);
+          const touch = endEvent.changedTouches[0];
+          const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+          if (dropTarget && dropTarget.classList.contains("cell")) {
+            const grid = dropTarget.querySelector(".token-grid");
+            const existing = [...grid.children].some(child => child.dataset.id === imgId);
+            if (!existing) {
+              addTokenToGrid(imgId, grid);
             }
           }
 
-          document.body.removeChild(tempImg);
-          moveEvent.preventDefault();
-          endEvent.preventDefault();
-          window.removeEventListener('touchmove', moveHandler);
-          window.removeEventListener('touchend', endHandler);
+          tempImg.remove();
+          window.removeEventListener("touchmove", moveHandler);
+          window.removeEventListener("touchend", endHandler);
         };
 
-        window.addEventListener('touchmove', moveHandler);
-        window.addEventListener('touchend', endHandler);
+        window.addEventListener("touchmove", moveHandler);
+        window.addEventListener("touchend", endHandler);
       });
     });
   </script>
