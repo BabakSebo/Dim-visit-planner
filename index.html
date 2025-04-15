@@ -3,41 +3,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Planner: Golf, Padel, Fazenda</title>
+  <title>Activity Planner</title>
   <style>
     :root {
-      --primary: #3a86ff;
-      --secondary: #f1f1f1;
-      --accent: #ffbe0b;
-      --bg: #ffffff;
-      --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      --green: #0B3D2E;
+      --gold: #FFCC00;
+      --white: #ffffff;
+      --cream: #f5f5dc;
       --border: #ccc;
+      --font: Georgia, 'Times New Roman', Times, serif;
     }
 
     body {
       font-family: var(--font);
+      background: var(--cream);
       margin: 0;
-      padding: 0;
-      background: var(--secondary);
-      color: #333;
+      padding: 20px;
+      color: var(--green);
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
     }
 
     h1 {
-      font-size: 2em;
+      font-size: 2.5em;
       margin-bottom: 20px;
-      color: var(--primary);
+      color: var(--green);
+      border-bottom: 3px solid var(--gold);
+      padding-bottom: 5px;
     }
 
     .tokens-container {
       display: flex;
-      justify-content: center;
       gap: 30px;
-      margin-bottom: 30px;
       flex-wrap: wrap;
+      margin-bottom: 30px;
     }
 
     .token-wrapper {
@@ -49,67 +49,66 @@
       width: 60px;
       height: 60px;
       border-radius: 50%;
+      border: 2px solid var(--gold);
       object-fit: cover;
-      border: 2px solid var(--primary);
+      object-position: center;
       cursor: grab;
     }
 
     .token-wrapper span {
-      margin-top: 8px;
+      margin-top: 6px;
       display: block;
       font-size: 0.9em;
+      font-weight: bold;
     }
 
     .calendar {
       display: grid;
       grid-template-columns: 120px repeat(24, 1fr);
-      background: var(--bg);
+      border: 1px solid var(--green);
     }
 
-    .calendar .header-cell {
-      background: var(--primary);
-      color: white;
-      font-weight: bold;
-      text-align: center;
-      padding: 8px;
-      font-size: 0.9em;
-      border: 1px solid var(--border);
-    }
-
-    .calendar .row-label {
-      background: var(--accent);
+    .header-cell {
+      background-color: var(--green);
+      color: var(--white);
       font-weight: bold;
       text-align: center;
       padding: 10px;
-      font-size: 0.95em;
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 0.85em;
+      border: 1px solid var(--white);
     }
 
-    .calendar .cell {
-      border: 1px solid var(--border);
+    .row-label {
+      background: var(--gold);
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      font-size: 0.95em;
+      border: 1px solid var(--green);
+      white-space: nowrap;
+    }
+
+    .cell {
+      border: 1px solid var(--green);
       min-height: 100px;
       padding: 4px;
-      position: relative;
     }
 
     .token-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 5px;
+      gap: 4px;
       justify-items: center;
       align-items: center;
     }
 
-    .token-grid .token {
+    .token {
       position: relative;
       width: 40px;
       height: 40px;
     }
 
-    .token-grid .token img {
+    .token img {
       width: 100%;
       height: 100%;
       border-radius: 50%;
@@ -117,14 +116,14 @@
       cursor: pointer;
     }
 
-    .token-grid .token img#Gunju {
+    .token img[data-id="Gunju"] {
       object-position: top;
     }
 
-    .token-grid .remove {
+    .remove {
       position: absolute;
-      top: -5px;
-      right: -5px;
+      top: -4px;
+      right: -4px;
       background: red;
       color: white;
       border: none;
@@ -139,30 +138,30 @@
 
     @media screen and (max-width: 800px) {
       .calendar {
-        overflow-x: scroll;
+        overflow-x: auto;
         display: block;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Activity Planner</h1>
+  <h1>April–May Planner</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
-      <img src="tokens/Riddler.png" draggable="true" id="Riddler" alt="Riddler" />
+      <img src="tokens/Riddler.png" draggable="true" id="Riddler" data-id="Riddler" />
       <span>Riddler</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Gunju.png" draggable="true" id="Gunju" alt="Gunju" />
+      <img src="tokens/Gunju.png" draggable="true" id="Gunju" data-id="Gunju" />
       <span>Gunju</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Yipak.png" draggable="true" id="Yipak" alt="Yipak" />
+      <img src="tokens/Yipak.png" draggable="true" id="Yipak" data-id="Yipak" />
       <span>Yipak</span>
     </div>
     <div class="token-wrapper">
-      <img src="tokens/Ronald.jpg" draggable="true" id="Ronald" alt="Ronald" />
+      <img src="tokens/Ronald.png" draggable="true" id="Ronald" data-id="Ronald" />
       <span>Ronald</span>
     </div>
   </div>
@@ -177,4 +176,68 @@
     ];
 
     const activities = ["Golf AM", "Golf PM", "Padel", "Fazenda"];
-    const
+    const calendar = document.getElementById("calendar");
+
+    // Build header
+    const emptyCell = document.createElement("div");
+    calendar.appendChild(emptyCell);
+    dates.forEach(date => {
+      const header = document.createElement("div");
+      header.className = "header-cell";
+      header.textContent = date;
+      calendar.appendChild(header);
+    });
+
+    // Build grid
+    activities.forEach(activity => {
+      const rowLabel = document.createElement("div");
+      rowLabel.className = "row-label";
+      rowLabel.textContent = activity;
+      calendar.appendChild(rowLabel);
+
+      dates.forEach(() => {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+
+        const tokenGrid = document.createElement("div");
+        tokenGrid.className = "token-grid";
+        cell.appendChild(tokenGrid);
+
+        cell.ondragover = (e) => e.preventDefault();
+
+        cell.ondrop = (e) => {
+          e.preventDefault();
+          const id = e.dataTransfer.getData("text/plain");
+          if (tokenGrid.querySelector(`#token-${id}`)) return;
+
+          const wrapper = document.createElement("div");
+          wrapper.className = "token";
+          wrapper.id = `token-${id}`;
+
+          const img = document.getElementById(id).cloneNode(true);
+          img.draggable = false;
+          img.dataset.id = id;
+
+          const removeBtn = document.createElement("button");
+          removeBtn.className = "remove";
+          removeBtn.innerText = "✖";
+          removeBtn.onclick = () => wrapper.remove();
+
+          wrapper.appendChild(img);
+          wrapper.appendChild(removeBtn);
+          tokenGrid.appendChild(wrapper);
+        };
+
+        calendar.appendChild(cell);
+      });
+    });
+
+    // Enable drag for all avatars
+    document.querySelectorAll(".tokens-container img").forEach(img => {
+      img.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", img.id);
+      });
+    });
+  </script>
+</body>
+</html>
