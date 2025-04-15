@@ -8,10 +8,10 @@
     :root {
       --green: #0B3D2E;
       --green-faded: rgba(11, 61, 46, 0.1);
-      --green-light: #A7D8D0;
+      --green-light: #A7D8D0; /* Light green for weekends */
       --white: #ffffff;
       --ivory: #fefefe;
-      --font-main: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-main: "Helvetica Neue", Helvetica, Arial, sans-serif; /* Use Helvetica Neue */
     }
 
     body {
@@ -51,7 +51,7 @@
       border-radius: 50%;
       border: 2px solid var(--white);
       object-fit: cover;
-      object-position: 50% 20%;
+      object-position: 50% 20%; 
     }
 
     .token-wrapper span {
@@ -99,6 +99,13 @@
       padding: 0.3rem;
     }
 
+
+    .calendar .row-label:nth-child(1) {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
     .cell {
       border: 1px solid #ccc;
       min-height: 140px;
@@ -108,7 +115,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      text-align: center;
+      text-align: center; /* Ensure the text is centered */
     }
 
     .token-grid {
@@ -144,6 +151,7 @@
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
+      object-position: top; 
     }
 
     .remove {
@@ -158,6 +166,18 @@
       width: 16px;
       height: 16px;
       cursor: pointer;
+    }
+
+    .drag-preview {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      position: absolute;
+      z-index: 1000;
+      pointer-events: none;
+      opacity: 0.9;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
 
     @media (max-width: 600px) {
@@ -209,48 +229,46 @@
     <div id="calendar" class="calendar"></div>
   </div>
 
-  <!-- Import Firebase setup -->
-  <script type="module" src="firebase.js"></script>
-
-  <script type="module">
-    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
-    import { database } from "./firebase.js";
-
+  <script>
     const dates = [
       "Apr 18 (F)", "Apr 19 (Sa)", "Apr 20 (Su)", "Apr 21 (M)", "Apr 22 (Tu)", "Apr 23 (W)", "Apr 24 (Th)", "Apr 25 (F)",
       "Apr 26 (Sa)", "Apr 27 (Su)", "Apr 28 (M)", "Apr 29 (Tu)", "Apr 30 (W)", "May 01 (Th)", "May 02 (F)", "May 03 (Sa)",
       "May 04 (Su)", "May 05 (M)", "May 06 (Tu)", "May 07 (W)", "May 08 (Th)", "May 09 (F)", "May 10 (Sa)", "May 11 (Su)"
     ];
-
     const activities = [
-      { id: "golf_am", label: "⛳<br>Golf AM" },
-      { id: "golf_pm", label: "🏌️<br>Golf PM" },
-      { id: "padel", label: "🎾<br>Padel" },
-      { id: "fazenda", label: "🥩🍷<br>Fazenda" }
+      "⛳<br>Golf AM",
+      "🏌️<br>Golf PM",
+      "🎾<br>Padel",
+      "🥩🍷<br>Fazenda"
     ];
-
     const calendar = document.getElementById("calendar");
 
-    calendar.appendChild(document.createElement("div")); // Empty top-left
-    dates.forEach(date => {
+    calendar.appendChild(document.createElement("div")); // Empty top-left corner
+    dates.forEach((date, index) => {
       const header = document.createElement("div");
       header.className = "header-cell";
       header.textContent = date;
-      if (date.includes("Sa") || date.includes("Su")) header.classList.add("weekend");
+
+      // Apply weekend highlight by checking 'Sa' or 'Su' in the date string
+        if (date.includes('Sa') || date.includes('Su')) {
+        header.classList.add('weekend');
+    }
+
+
       calendar.appendChild(header);
     });
 
-    activities.forEach(({ id: activityId, label: activityLabel }) => {
+    activities.forEach(activity => {
       const label = document.createElement("div");
       label.className = "row-label";
-      label.innerHTML = activityLabel;
+      label.innerHTML = activity; // Make sure the emoji and name are on separate lines
       calendar.appendChild(label);
 
       dates.forEach(date => {
         const cell = document.createElement("div");
         cell.className = "cell";
         cell.dataset.date = date;
-        cell.dataset.activity = activityId;
+        cell.dataset.activity = activity;
 
         const grid = document.createElement("div");
         grid.className = "token-grid";
@@ -262,95 +280,93 @@
         }
 
         cell.appendChild(grid);
-        cell.ondragover = e => e.preventDefault();
-        cell.ondrop = e => {
+        cell.ondragover = (e) => e.preventDefault();
+        cell.ondrop = (e) => {
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
-          if (!grid.querySelector(`#token-${id}`)) {
+          if (!grid.querySelector(#token-${id})) {
             addTokenToGrid(id, grid);
           }
         };
-
         calendar.appendChild(cell);
       });
     });
 
-    function getCurrentTokens(date, activityId) {
-      const selector = `.cell[data-date="${date}"][data-activity="${activityId}"] .token`;
-      const tokenElements = document.querySelectorAll(selector);
-      return Array.from(tokenElements).map(el => el.dataset.id);
-    }
-
-    function saveDataToFirebase(date, activityId, tokens) {
-      const dbRef = ref(database, 'calendar/' + date + '/' + activityId);
-      set(dbRef, { tokens });
-    }
-
-    function loadDataFromFirebase() {
-      const dbRef = ref(database, 'calendar/');
-      get(dbRef).then(snapshot => {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          for (const date in data) {
-            for (const activityId in data[date]) {
-              const tokens = data[date][activityId].tokens || [];
-              const selector = `.cell[data-date="${date}"][data-activity="${activityId}"] .token-grid`;
-              const grid = document.querySelector(selector);
-              tokens.forEach(tokenId => {
-                if (grid && !grid.querySelector(`#token-${tokenId}`)) {
-                  addTokenToGrid(tokenId, grid);
-                }
-              });
-            }
-          }
-        }
-      }).catch(console.error);
-    }
-
     function addTokenToGrid(id, grid) {
-      const cell = grid.closest('.cell');
-      const date = cell.dataset.date;
-      const activityId = cell.dataset.activity;
-
       const wrapper = document.createElement("div");
       wrapper.className = "token";
       wrapper.dataset.id = id;
-      wrapper.id = `token-${id}`;
+      wrapper.id = token-${id};
 
       const original = document.getElementById(id);
       const img = original.cloneNode(true);
       img.removeAttribute("draggable");
+      img.style.objectPosition = "top"; // Prevent cropping of heads
 
       const remove = document.createElement("button");
       remove.className = "remove";
       remove.textContent = "✖";
       remove.onclick = () => {
         wrapper.remove();
+
+        // Restore placeholder when token is removed
         const placeholder = document.createElement("div");
         placeholder.className = "circle-placeholder";
         grid.appendChild(placeholder);
-        saveDataToFirebase(date, activityId, getCurrentTokens(date, activityId));
       };
 
       wrapper.appendChild(img);
       wrapper.appendChild(remove);
 
+      // Replace one of the placeholders
       const placeholder = grid.querySelector(".circle-placeholder");
       if (placeholder) {
         grid.replaceChild(wrapper, placeholder);
       }
-
-      saveDataToFirebase(date, activityId, getCurrentTokens(date, activityId));
     }
 
-    // Make tokens draggable
-    document.querySelectorAll(".token-wrapper img").forEach(img => {
+    // Desktop drag support
+    document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
-        e.dataTransfer.setData("text/plain", e.target.dataset.id);
+        e.dataTransfer.setData("text/plain", img.id);
+      });
+
+      // Touch support (mobile)
+      img.addEventListener("touchstart", e => {
+        const touch = e.touches[0];
+        const imgId = img.id;
+        e.preventDefault();
+
+        const tempImg = img.cloneNode(true);
+        tempImg.className = 'drag-preview';
+        document.body.appendChild(tempImg);
+
+        const moveHandler = (moveEvent) => {
+          const touch = moveEvent.touches[0];
+          tempImg.style.left = ${touch.clientX}px;
+          tempImg.style.top = ${touch.clientY}px;
+        };
+
+        const endHandler = (endEvent) => {
+          const touch = endEvent.changedTouches[0];
+          const target = document.elementFromPoint(touch.clientX, touch.clientY);
+          if (target && target.closest(".cell")) {
+            const grid = target.closest(".cell").querySelector(".token-grid");
+            const exists = [...grid.children].some(el => el.dataset?.id === imgId);
+            if (!exists) {
+              addTokenToGrid(imgId, grid);
+            }
+          }
+
+          tempImg.remove();
+          window.removeEventListener("touchmove", moveHandler);
+          window.removeEventListener("touchend", endHandler);
+        };
+
+        window.addEventListener("touchmove", moveHandler);
+        window.addEventListener("touchend", endHandler);
       });
     });
-
-    loadDataFromFirebase();
   </script>
 </body>
 </html>
