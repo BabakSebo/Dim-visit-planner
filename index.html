@@ -52,13 +52,8 @@
       height: 60px;
       border-radius: 50%;
       object-fit: cover;
-      object-position: center;
+      object-position: top; /* Align the image to the top */
       border: 2px solid var(--white);
-    }
-
-    .token-wrapper img[data-id="Gunju"],
-    .token-wrapper img[data-id="Ronald"] {
-      object-position: top;
     }
 
     .token-wrapper span {
@@ -95,4 +90,180 @@
     }
 
     .row-label {
-      font-size: 0.75rem
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-align: center;
+      background: var(--green);
+      color: var(--white);
+      border: 1px solid #ccc;
+      padding: 0.3rem;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    .cell {
+      border: 1px solid #ccc;
+      min-height: 60px;
+      padding: 3px;
+      background-color: var(--white);
+    }
+
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px;
+      justify-items: center;
+      align-items: center;
+    }
+
+    .token {
+      position: relative;
+      width: 28px;
+      height: 28px;
+    }
+
+    .token img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .remove {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: red;
+      color: white;
+      font-size: 10px;
+      border: none;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      line-height: 14px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      .calendar {
+        grid-template-columns: 70px repeat(24, minmax(50px, 1fr));
+      }
+
+      .header-cell,
+      .row-label {
+        font-size: 0.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🗓️ Calendar 🗓️</h1>
+
+  <div class="tokens-container">
+    <div class="token-wrapper">
+      <img src="tokens/Riddler.png" draggable="true" id="Riddler" data-id="Riddler" />
+      <span>Riddler</span>
+    </div>
+    <div class="token-wrapper">
+      <img src="tokens/Gunju.png" draggable="true" id="Gunju" data-id="Gunju" />
+      <span>Gunju</span>
+    </div>
+    <div class="token-wrapper">
+      <img src="tokens/Yipak.png" draggable="true" id="Yipak" data-id="Yipak" />
+      <span>Yipak</span>
+    </div>
+    <div class="token-wrapper">
+      <img src="tokens/Ronald.png" draggable="true" id="Ronald" data-id="Ronald" />
+      <span>Ronald</span>
+    </div>
+  </div>
+
+  <div class="calendar-wrapper">
+    <div id="calendar" class="calendar"></div>
+  </div>
+
+  <script>
+    const dates = [
+      "Apr 18", "Apr 19", "Apr 20", "Apr 21", "Apr 22", "Apr 23", "Apr 24", "Apr 25",
+      "Apr 26", "Apr 27", "Apr 28", "Apr 29", "Apr 30", "May 01", "May 02", "May 03",
+      "May 04", "May 05", "May 06", "May 07", "May 08", "May 09", "May 10", "May 11"
+    ];
+    const activities = [
+      "⛳ Golf AM",
+      "🏌️ Golf PM",
+      "🎾 Padel",
+      "🥩🍷 Fazenda"
+    ];
+    const calendar = document.getElementById("calendar");
+
+    // Create Header Row
+    calendar.appendChild(document.createElement("div")); // Empty corner
+    dates.forEach(date => {
+      const header = document.createElement("div");
+      header.className = "header-cell";
+      header.textContent = date;
+      calendar.appendChild(header);
+    });
+
+    // Create Calendar Grid
+    activities.forEach(activity => {
+      const label = document.createElement("div");
+      label.className = "row-label";
+      label.textContent = activity;
+      calendar.appendChild(label);
+
+      dates.forEach((date, i) => {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+
+        const grid = document.createElement("div");
+        grid.className = "token-grid";
+        cell.appendChild(grid);
+
+        // For touch events
+        cell.ontouchstart = (e) => e.preventDefault();
+        cell.ontouchmove = (e) => e.preventDefault();
+        cell.ontouchend = (e) => {
+          const touch = e.changedTouches[0];
+          const id = touch.target.id;
+          if (grid.querySelector(`#token-${id}`)) return;
+
+          const wrapper = document.createElement("div");
+          wrapper.className = "token";
+          wrapper.id = `token-${id}-${activity}-${i}`;
+
+          const original = document.getElementById(id);
+          const img = original.cloneNode(true);
+          img.removeAttribute("draggable");
+
+          if (id === "Gunju") img.style.objectPosition = "top";
+          if (id === "Ronald") img.style.objectPosition = "top";
+
+          const remove = document.createElement("button");
+          remove.className = "remove";
+          remove.textContent = "✖";
+          remove.onclick = () => wrapper.remove();
+
+          wrapper.appendChild(img);
+          wrapper.appendChild(remove);
+          grid.appendChild(wrapper);
+        };
+
+        calendar.appendChild(cell);
+      });
+    });
+
+    // Allow dragging for desktops (dragstart)
+    document.querySelectorAll(".tokens-container img").forEach(img => {
+      img.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", img.id);
+      });
+    });
+  </script>
+</body>
+</html>
