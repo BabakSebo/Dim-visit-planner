@@ -51,7 +51,7 @@
       border-radius: 50%;
       border: 2px solid var(--white);
       object-fit: cover;
-      object-position: center top;
+      object-position: top;
     }
 
     .token-wrapper span {
@@ -102,6 +102,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      white-space: pre-line;
     }
 
     .cell {
@@ -148,7 +149,7 @@
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
-      object-position: center top;
+      object-position: top;
     }
 
     .remove {
@@ -201,7 +202,7 @@
   </style>
 </head>
 <body>
-  <h1>🗓️ Spring Calendar 🗓️</h1>
+  <h1>🗓️ Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -248,8 +249,8 @@
       return days[dateObj.getDay()];
     }
 
-    // Header row
-    calendar.appendChild(document.createElement("div")); // Top-left corner
+    calendar.appendChild(document.createElement("div")); // Top-left empty corner
+
     dates.forEach(date => {
       const day = getDaySuffix(date);
       const header = document.createElement("div");
@@ -261,7 +262,6 @@
       calendar.appendChild(header);
     });
 
-    // Grid
     activities.forEach(activity => {
       const label = document.createElement("div");
       label.className = "row-label";
@@ -306,7 +306,6 @@
       const original = document.getElementById(id);
       const img = original.cloneNode(true);
       img.removeAttribute("draggable");
-      img.style.objectPosition = "center top";
 
       const remove = document.createElement("button");
       remove.className = "remove";
@@ -327,14 +326,14 @@
       }
     }
 
-    // Desktop drag
+    // Desktop drag support
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
     });
 
-    // ✅ Mobile touch drag
+    // ✅ Mobile touch support (restored exactly)
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("touchstart", (e) => {
         const touch = e.touches[0];
