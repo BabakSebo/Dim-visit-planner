@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🗓️ Planner 🗓️</title>
+  <title>Planner 🗓️</title>
   <style>
     :root {
       --green: #0B3D2E;
@@ -56,7 +56,8 @@
       border: 2px solid var(--white);
     }
 
-    .token-wrapper img[data-id="Gunju"] {
+    .token-wrapper img[data-id="Gunju"],
+    .token-wrapper img[data-id="Ronald"] {
       object-position: top;
     }
 
@@ -78,7 +79,7 @@
 
     .calendar {
       display: grid;
-      grid-template-columns: 80px repeat(24, minmax(60px, 1fr));
+      grid-template-columns: 100px repeat(24, minmax(60px, 1fr)); /* Wider first column */
       min-width: 1000px;
     }
 
@@ -101,6 +102,8 @@
       color: var(--white);
       border: 1px solid #ccc;
       padding: 0.3rem;
+      white-space: normal;
+      word-wrap: break-word;
     }
 
     .cell {
@@ -164,7 +167,7 @@
   </style>
 </head>
 <body>
-  <h1>Golf Trip Planner</h1>
+  <h1>🗓️ Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -196,11 +199,11 @@
       "May 04", "May 05", "May 06", "May 07", "May 08", "May 09", "May 10", "May 11"
     ];
     const activities = [
-  "⛳ Golf AM",
-  "🏌️ Golf PM",
-  "🎾 Padel",
-  "🥩🍷 Fazenda"
-];
+      "⛳ Golf AM",
+      "🏌️ Golf PM",
+      "🎾 Padel",
+      "🥩🍷 Fazenda"
+    ];
     const calendar = document.getElementById("calendar");
 
     // Create Header Row
