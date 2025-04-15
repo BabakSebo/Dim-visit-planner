@@ -75,7 +75,7 @@
 
     .calendar {
       display: grid;
-      grid-template-columns: 100px repeat(24, minmax(120px, 1fr));
+      grid-template-columns: 100px repeat(24, minmax(100px, 1fr));
       min-width: 1000px;
     }
 
@@ -104,24 +104,60 @@
 
     .cell {
       border: 1px solid #ccc;
-      min-height: 60px;
+      min-height: 120px;
+      height: 120px;
       padding: 3px;
       background-color: var(--white);
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .token-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 4px;
+      grid-template-rows: repeat(2, 1fr);
+      gap: 8px;
+      width: 100%;
+      height: 100%;
+      padding: 8px;
+      box-sizing: border-box;
       justify-items: center;
       align-items: center;
+      position: relative;
+    }
+
+    /* Placeholder circles inside cells */
+    .token-grid::before {
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 8px;
+      z-index: 0;
+    }
+
+    .token-grid::before > * {
+      content: "";
+      display: block;
+      background-color: rgba(11, 61, 46, 0.1);
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      margin: auto;
     }
 
     .token {
       position: relative;
       width: 28px;
       height: 28px;
+      z-index: 1;
     }
 
     .token img {
@@ -165,18 +201,23 @@
       }
 
       .calendar {
-        grid-template-columns: 70px repeat(24, minmax(120px, 1fr));
+        grid-template-columns: 70px repeat(24, minmax(100px, 1fr));
       }
 
       .header-cell,
       .row-label {
         font-size: 0.6rem;
       }
+
+      .cell {
+        min-height: 100px;
+        height: 100px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>🗓️ Spring Calendar 🗓️</h1>
+  <h1>🗓️ Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -215,7 +256,6 @@
     ];
     const calendar = document.getElementById("calendar");
 
-    // Create Header Row
     calendar.appendChild(document.createElement("div")); // Empty corner
     dates.forEach(date => {
       const header = document.createElement("div");
@@ -224,14 +264,13 @@
       calendar.appendChild(header);
     });
 
-    // Create Calendar Grid
-    activities.forEach((activity) => {
+    activities.forEach(activity => {
       const label = document.createElement("div");
       label.className = "row-label";
       label.textContent = activity;
       calendar.appendChild(label);
 
-      dates.forEach((date) => {
+      dates.forEach(date => {
         const cell = document.createElement("div");
         cell.className = "cell";
         cell.dataset.date = date;
@@ -245,11 +284,9 @@
         cell.ondrop = (e) => {
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
-          if (!grid || grid.querySelector(`#token-${id}`)) return;
-
-          if ([...grid.children].some(child => child.dataset.id === id)) return;
-
-          addTokenToGrid(id, grid);
+          if (!grid.querySelector(`#token-${id}`)) {
+            addTokenToGrid(id, grid);
+          }
         };
 
         calendar.appendChild(cell);
@@ -276,15 +313,11 @@
       grid.appendChild(wrapper);
     }
 
-    // Desktop drag support
     document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
-    });
 
-    // Mobile touch support
-    document.querySelectorAll(".tokens-container img").forEach(img => {
       img.addEventListener("touchstart", (e) => {
         const touch = e.touches[0];
         const imgId = img.id;
