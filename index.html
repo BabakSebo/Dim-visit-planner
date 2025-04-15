@@ -65,7 +65,7 @@
       overflow-x: auto;
       background: var(--ivory);
       border-radius: 12px;
-      padding: 1rem;
+      padding: 0;
       position: relative;
     }
 
@@ -73,6 +73,8 @@
       display: grid;
       grid-template-columns: 100px repeat(24, minmax(120px, 1fr));
       min-width: 1000px;
+      position: relative;
+      z-index: 1;
     }
 
     .header-cell {
@@ -90,6 +92,13 @@
       background-color: var(--green-light);
     }
 
+    .header-cell:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 11;
+      background-color: var(--green);
+    }
+
     .row-label {
       font-size: 0.75rem;
       font-weight: bold;
@@ -100,7 +109,8 @@
       padding: 0.3rem;
       position: sticky;
       left: 0;
-      z-index: 2;
+      z-index: 10;
+      background-color: var(--green);
     }
 
     .cell {
@@ -112,6 +122,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      text-align: center;
     }
 
     .token-grid {
@@ -232,22 +243,12 @@
       "May 04 (Su)", "May 05 (M)", "May 06 (Tu)", "May 07 (W)", "May 08 (Th)", "May 09 (F)", "May 10 (Sa)", "May 11 (Su)"
     ];
     const activities = [
-      "⛳<br>Golf AM",
-      "🏌️<br>Golf PM",
-      "🎾<br>Padel",
-      "🥩🍷<br>Fazenda"
+      "⛳<br>Golf AM", "🏌️<br>Golf PM", "🎾<br>Padel", "🥩🍷<br>Fazenda"
     ];
     const calendar = document.getElementById("calendar");
 
-    const topLeft = document.createElement("div");
-    topLeft.className = "header-cell";
-    topLeft.style.position = "sticky";
-    topLeft.style.left = "0";
-    topLeft.style.zIndex = "3";
-    topLeft.style.background = "var(--green)";
-    calendar.appendChild(topLeft);
-
-    dates.forEach(date => {
+    calendar.appendChild(document.createElement("div")); // Empty top-left corner
+    dates.forEach((date, index) => {
       const header = document.createElement("div");
       header.className = "header-cell";
       header.textContent = date;
