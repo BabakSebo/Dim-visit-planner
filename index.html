@@ -50,6 +50,7 @@
       border-radius: 50%;
       border: 2px solid var(--white);
       object-fit: cover;
+      object-position: center top; 
     }
 
     .token-wrapper span {
@@ -270,30 +271,39 @@
       });
     });
 
-    function addTokenToGrid(id, grid) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "token";
-      wrapper.dataset.id = id;
-      wrapper.id = `token-${id}`;
+function addTokenToGrid(id, grid) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "token";
+  wrapper.dataset.id = id;
+  wrapper.id = `token-${id}`;
 
-      const original = document.getElementById(id);
-      const img = original.cloneNode(true);
-      img.removeAttribute("draggable");
+  const original = document.getElementById(id);
+  const img = original.cloneNode(true);
+  img.removeAttribute("draggable");
+  img.style.objectPosition = "center top"; // Ensure full image, especially head
 
-      const remove = document.createElement("button");
-      remove.className = "remove";
-      remove.textContent = "✖";
-      remove.onclick = () => wrapper.remove();
+  const remove = document.createElement("button");
+  remove.className = "remove";
+  remove.textContent = "✖";
+  remove.onclick = () => {
+    wrapper.remove();
 
-      wrapper.appendChild(img);
-      wrapper.appendChild(remove);
+    // Restore placeholder when token is removed
+    const placeholder = document.createElement("div");
+    placeholder.className = "circle-placeholder";
+    grid.appendChild(placeholder);
+  };
 
-      // Replace one of the placeholders
-      const placeholder = grid.querySelector(".circle-placeholder");
-      if (placeholder) {
-        grid.replaceChild(wrapper, placeholder);
-      }
-    }
+  wrapper.appendChild(img);
+  wrapper.appendChild(remove);
+
+  // Replace one of the placeholders
+  const placeholder = grid.querySelector(".circle-placeholder");
+  if (placeholder) {
+    grid.replaceChild(wrapper, placeholder);
+  }
+}
+
 
     // Desktop drag support
     document.querySelectorAll(".tokens-container img").forEach(img => {
