@@ -3,41 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Activity Planner</title>
+  <title>Golf Trip Planner</title>
   <style>
     :root {
       --green: #0B3D2E;
-      --gold: #FFCC00;
       --white: #ffffff;
-      --cream: #f5f5dc;
-      --border: #ccc;
-      --font: Georgia, 'Times New Roman', Times, serif;
+      --ivory: #fefefe;
+      --accent: #e0e0d1;
+      --font-main: Georgia, 'Times New Roman', Times, serif;
     }
 
     body {
-      font-family: var(--font);
-      background: var(--cream);
       margin: 0;
-      padding: 20px;
-      color: var(--green);
+      padding: 1rem;
+      font-family: var(--font-main);
+      background-color: var(--green);
+      color: var(--white);
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
-      color: var(--green);
-      border-bottom: 3px solid var(--gold);
-      padding-bottom: 5px;
+      text-align: center;
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+      color: var(--white);
+      border-bottom: 2px solid var(--white);
+      padding-bottom: 0.5rem;
+      width: 100%;
     }
 
     .tokens-container {
       display: flex;
-      gap: 30px;
+      justify-content: center;
       flex-wrap: wrap;
-      margin-bottom: 30px;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .token-wrapper {
@@ -49,49 +51,63 @@
       width: 60px;
       height: 60px;
       border-radius: 50%;
-      border: 2px solid var(--gold);
       object-fit: cover;
       object-position: center;
-      cursor: grab;
+      border: 2px solid var(--white);
+    }
+
+    .token-wrapper img[data-id="Gunju"] {
+      object-position: top;
     }
 
     .token-wrapper span {
-      margin-top: 6px;
       display: block;
-      font-size: 0.9em;
-      font-weight: bold;
+      font-size: 0.8rem;
+      margin-top: 4px;
+      color: var(--white);
+    }
+
+    .calendar-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--ivory);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     .calendar {
       display: grid;
-      grid-template-columns: 120px repeat(24, 1fr);
-      border: 1px solid var(--green);
+      grid-template-columns: 80px repeat(24, minmax(60px, 1fr));
+      min-width: 1000px;
     }
 
     .header-cell {
-      background-color: var(--green);
+      font-size: 0.7rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 0.5rem 0.3rem;
+      background: var(--green);
       color: var(--white);
-      font-weight: bold;
-      text-align: center;
-      padding: 10px;
-      font-size: 0.85em;
-      border: 1px solid var(--white);
-    }
-
-    .row-label {
-      background: var(--gold);
-      text-align: center;
-      padding: 10px;
-      font-weight: bold;
-      font-size: 0.95em;
-      border: 1px solid var(--green);
+      border: 1px solid #ccc;
       white-space: nowrap;
     }
 
+    .row-label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-align: center;
+      background: var(--green);
+      color: var(--white);
+      border: 1px solid #ccc;
+      padding: 0.3rem;
+    }
+
     .cell {
-      border: 1px solid var(--green);
-      min-height: 100px;
-      padding: 4px;
+      border: 1px solid #ccc;
+      min-height: 60px;
+      padding: 3px;
+      background-color: var(--white);
     }
 
     .token-grid {
@@ -104,8 +120,8 @@
 
     .token {
       position: relative;
-      width: 40px;
-      height: 40px;
+      width: 28px;
+      height: 28px;
     }
 
     .token img {
@@ -113,11 +129,6 @@
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
-      cursor: pointer;
-    }
-
-    .token img[data-id="Gunju"] {
-      object-position: top;
     }
 
     .remove {
@@ -126,9 +137,9 @@
       right: -4px;
       background: red;
       color: white;
+      font-size: 10px;
       border: none;
       border-radius: 50%;
-      font-size: 10px;
       width: 14px;
       height: 14px;
       line-height: 14px;
@@ -136,16 +147,24 @@
       cursor: pointer;
     }
 
-    @media screen and (max-width: 800px) {
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.4rem;
+      }
+
       .calendar {
-        overflow-x: auto;
-        display: block;
+        grid-template-columns: 70px repeat(24, minmax(50px, 1fr));
+      }
+
+      .header-cell,
+      .row-label {
+        font-size: 0.6rem;
       }
     }
   </style>
 </head>
 <body>
-  <h1>April–May Planner</h1>
+  <h1>Golf Trip Planner</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -166,7 +185,9 @@
     </div>
   </div>
 
-  <div id="calendar" class="calendar"></div>
+  <div class="calendar-wrapper">
+    <div id="calendar" class="calendar"></div>
+  </div>
 
   <script>
     const dates = [
@@ -174,13 +195,11 @@
       "Apr 26", "Apr 27", "Apr 28", "Apr 29", "Apr 30", "May 01", "May 02", "May 03",
       "May 04", "May 05", "May 06", "May 07", "May 08", "May 09", "May 10", "May 11"
     ];
-
     const activities = ["Golf AM", "Golf PM", "Padel", "Fazenda"];
     const calendar = document.getElementById("calendar");
 
-    // Build header
-    const emptyCell = document.createElement("div");
-    calendar.appendChild(emptyCell);
+    // Create Header Row
+    calendar.appendChild(document.createElement("div")); // Empty corner
     dates.forEach(date => {
       const header = document.createElement("div");
       header.className = "header-cell";
@@ -188,53 +207,54 @@
       calendar.appendChild(header);
     });
 
-    // Build grid
+    // Create Calendar Grid
     activities.forEach(activity => {
-      const rowLabel = document.createElement("div");
-      rowLabel.className = "row-label";
-      rowLabel.textContent = activity;
-      calendar.appendChild(rowLabel);
+      const label = document.createElement("div");
+      label.className = "row-label";
+      label.textContent = activity;
+      calendar.appendChild(label);
 
-      dates.forEach(() => {
+      dates.forEach((date, i) => {
         const cell = document.createElement("div");
         cell.className = "cell";
 
-        const tokenGrid = document.createElement("div");
-        tokenGrid.className = "token-grid";
-        cell.appendChild(tokenGrid);
+        const grid = document.createElement("div");
+        grid.className = "token-grid";
+        cell.appendChild(grid);
 
         cell.ondragover = (e) => e.preventDefault();
-
         cell.ondrop = (e) => {
           e.preventDefault();
           const id = e.dataTransfer.getData("text/plain");
-          if (tokenGrid.querySelector(`#token-${id}`)) return;
+          if (grid.querySelector(`#token-${id}`)) return;
 
           const wrapper = document.createElement("div");
           wrapper.className = "token";
-          wrapper.id = `token-${id}`;
+          wrapper.id = `token-${id}-${activity}-${i}`;
 
-          const img = document.getElementById(id).cloneNode(true);
-          img.draggable = false;
-          img.dataset.id = id;
+          const original = document.getElementById(id);
+          const img = original.cloneNode(true);
+          img.removeAttribute("draggable");
 
-          const removeBtn = document.createElement("button");
-          removeBtn.className = "remove";
-          removeBtn.innerText = "✖";
-          removeBtn.onclick = () => wrapper.remove();
+          if (id === "Gunju") img.style.objectPosition = "top";
+
+          const remove = document.createElement("button");
+          remove.className = "remove";
+          remove.textContent = "✖";
+          remove.onclick = () => wrapper.remove();
 
           wrapper.appendChild(img);
-          wrapper.appendChild(removeBtn);
-          tokenGrid.appendChild(wrapper);
+          wrapper.appendChild(remove);
+          grid.appendChild(wrapper);
         };
 
         calendar.appendChild(cell);
       });
     });
 
-    // Enable drag for all avatars
+    // Allow dragging
     document.querySelectorAll(".tokens-container img").forEach(img => {
-      img.addEventListener("dragstart", (e) => {
+      img.addEventListener("dragstart", e => {
         e.dataTransfer.setData("text/plain", img.id);
       });
     });
