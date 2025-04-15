@@ -107,6 +107,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      text-align: center; /* Ensure the text is centered */
     }
 
     .token-grid {
@@ -195,7 +196,7 @@
   </style>
 </head>
 <body>
-  <h1>🗓️ Calendar 🗓️</h1>
+  <h1>🗓️ Spring Calendar 🗓️</h1>
 
   <div class="tokens-container">
     <div class="token-wrapper">
@@ -227,10 +228,10 @@
       "May 04 (Su)", "May 05 (M)", "May 06 (Tu)", "May 07 (W)", "May 08 (Th)", "May 09 (F)", "May 10 (Sa)", "May 11 (Su)"
     ];
     const activities = [
-      "⛳ Golf AM",
-      "🏌️ Golf PM",
-      "🎾 Padel",
-      "🥩🍷 Fazenda"
+      "⛳<br>Golf AM",
+      "🏌️<br>Golf PM",
+      "🎾<br>Padel",
+      "🥩🍷<br>Fazenda"
     ];
     const calendar = document.getElementById("calendar");
 
@@ -251,7 +252,7 @@
     activities.forEach(activity => {
       const label = document.createElement("div");
       label.className = "row-label";
-      label.textContent = activity;
+      label.innerHTML = activity; // Make sure the emoji and name are on separate lines
       calendar.appendChild(label);
 
       dates.forEach(date => {
