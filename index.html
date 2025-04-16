@@ -357,23 +357,24 @@ function addTokenToGrid(id, grid, shouldSave = false) {
   const date = cell?.dataset.date;
   const activityKey = cell?.dataset.key;
 
-  remove.onclick = () => {
-    const tokenId = wrapper.dataset.id;
+remove.onclick = () => {
+  const tokenId = wrapper.dataset.id;
 
-    wrapper.remove();
+  wrapper.remove();
 
-    const placeholder = document.createElement("div");
-    placeholder.className = "circle-placeholder";
-    grid.appendChild(placeholder);
+  const placeholder = document.createElement("div");
+  placeholder.className = "circle-placeholder";
+  grid.appendChild(placeholder);
 
-    if (shouldSave && date && activityKey && tokenId) {
-      console.log("Removing from:", `availability/${date}/${activityKey}/${tokenId}`);
-      db.ref(`availability/${date}/${activityKey}/${tokenId}`).remove()
-        .catch((err) => {
-          console.error("❌ Failed to remove from Firebase:", err);
-        });
-    }
-  };
+  if (date && activityKey && tokenId) {
+    console.log("Removing from:", `availability/${date}/${activityKey}/${tokenId}`);
+    db.ref(`availability/${date}/${activityKey}/${tokenId}`).remove()
+      .catch((err) => {
+        console.error("❌ Failed to remove from Firebase:", err);
+      });
+  }
+};
+
 
   wrapper.appendChild(img);
   wrapper.appendChild(remove);
