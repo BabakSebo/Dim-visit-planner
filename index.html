@@ -353,11 +353,12 @@ function addTokenToGrid(id, grid, shouldSave = false) {
   remove.className = "remove";
   remove.textContent = "✖";
 
+  const cell = grid.closest(".cell");
+  const date = cell?.dataset.date;
+  const activityKey = cell?.dataset.key;
+
   remove.onclick = () => {
     const tokenId = wrapper.dataset.id;
-    const cell = grid.closest(".cell");
-    const date = cell?.dataset.date;
-    const activityKey = cell?.dataset.key;
 
     wrapper.remove();
 
@@ -366,6 +367,7 @@ function addTokenToGrid(id, grid, shouldSave = false) {
     grid.appendChild(placeholder);
 
     if (shouldSave && date && activityKey && tokenId) {
+      console.log("Removing from:", `availability/${date}/${activityKey}/${tokenId}`);
       db.ref(`availability/${date}/${activityKey}/${tokenId}`).remove()
         .catch((err) => {
           console.error("❌ Failed to remove from Firebase:", err);
@@ -380,19 +382,15 @@ function addTokenToGrid(id, grid, shouldSave = false) {
   if (placeholder) {
     grid.replaceChild(wrapper, placeholder);
 
-    if (shouldSave) {
-      const cell = grid.closest(".cell");
-      const date = cell?.dataset.date;
-      const activityKey = cell?.dataset.key;
-      if (date && activityKey) {
-        db.ref(`availability/${date}/${activityKey}/${id}`).set(true)
-          .catch((err) => {
-            console.error("❌ Failed to save to Firebase:", err);
-          });
-      }
+    if (shouldSave && date && activityKey) {
+      db.ref(`availability/${date}/${activityKey}/${id}`).set(true)
+        .catch((err) => {
+          console.error("❌ Failed to save to Firebase:", err);
+        });
     }
   }
 }
+
 
 
   // Reset button functionality
