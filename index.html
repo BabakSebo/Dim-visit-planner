@@ -338,48 +338,62 @@ const firebaseConfig = {
     });
   });
 
-  function addTokenToGrid(id, grid, shouldSave = false) {
-    const wrapper = document.createElement("div");
-    wrapper.className = "token";
-    wrapper.dataset.id = id;
-    wrapper.id = `token-${id}`;
+function addTokenToGrid(id, grid, shouldSave = false) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "token";
+  wrapper.dataset.id = id;
+  wrapper.id = `token-${id}`;
 
-    const original = document.getElementById(id);
-    const img = original.cloneNode(true);
-    img.removeAttribute("draggable");
-    img.style.objectPosition = "top";
+  const original = document.getElementById(id);
+  const img = original.cloneNode(true);
+  img.removeAttribute("draggable");
+  img.style.objectPosition = "top";
 
-    const remove = document.createElement("button");
-    remove.className = "remove";
-    remove.textContent = "✖";
-    remove.onclick = () => {
-      wrapper.remove();
-      const placeholder = document.createElement("div");
-      placeholder.className = "circle-placeholder";
-      grid.appendChild(placeholder);
+  const remove = document.createElement("button");
+  remove.className = "remove";
+  remove.textContent = "✖";
 
-      if (shouldSave) {
-        const cell = grid.closest(".cell");
-        const date = cell.dataset.date;
-        const activityKey = cell.dataset.key;
-        db.ref(`availability/${date}/${activityKey}/${id}`).remove();
-      }
-    };
+  remove.onclick = () => {
+    const tokenId = wrapper.dataset.id;
+    const cell = grid.closest(".cell");
+    const date = cell?.dataset.date;
+    const activityKey = cell?.dataset.key;
 
-    wrapper.appendChild(img);
-    wrapper.appendChild(remove);
+    wrapper.remove();
 
-    const placeholder = grid.querySelector(".circle-placeholder");
-    if (placeholder) {
-      grid.replaceChild(wrapper, placeholder);
-      if (shouldSave) {
-        const cell = grid.closest(".cell");
-        const date = cell.dataset.date;
-        const activityKey = cell.dataset.key;
-        db.ref(`availability/${date}/${activityKey}/${id}`).set(true);
+    const placeholder = document.createElement("div");
+    placeholder.className = "circle-placeholder";
+    grid.appendChild(placeholder);
+
+    if (shouldSave && date && activityKey && tokenId) {
+      db.ref(`availability/${date}/${activityKey}/${tokenId}`).remove()
+        .catch((err) => {
+          console.error("❌ Failed to remove from Firebase:", err);
+        });
+    }
+  };
+
+  wrapper.appendChild(img);
+  wrapper.appendChild(remove);
+
+  const placeholder = grid.querySelector(".circle-placeholder");
+  if (placeholder) {
+    grid.replaceChild(wrapper, placeholder);
+
+    if (shouldSave) {
+      const cell = grid.closest(".cell");
+      const date = cell?.dataset.date;
+      const activityKey = cell?.dataset.key;
+      if (date && activityKey) {
+        db.ref(`availability/${date}/${activityKey}/${id}`).set(true)
+          .catch((err) => {
+            console.error("❌ Failed to save to Firebase:", err);
+          });
       }
     }
   }
+}
+
 
   // Reset button functionality
   const resetButton = document.createElement("button");
